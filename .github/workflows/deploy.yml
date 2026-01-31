@@ -16,7 +16,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, zip, bcmath
           coverage: none
 
@@ -34,34 +34,52 @@ jobs:
       - name: Build Assets
         run: npm run build
 
-      - name: Deploy to Server via SCP
-        uses: appleboy/scp-action@master
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
+          port: 22
+          script: |
+            echo "SSH Connection Successful!"
+            whoami
+            pwd
+
+      - name: Deploy to Server via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          port: 22
           source: "."
           target: "/home/nanoteam-best/htdocs/best.nanoteam.uz"
           strip_components: 0
-          rm: false # Set to true if you want to clear target dir before sync
+          rm: false
           exclude: ".git,.github,vendor,node_modules,storage,.env"
 
       - name: Post-Deployment Commands
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
+          port: 22
+          script_stop: true
           script: |
             cd /home/nanoteam-best/htdocs/best.nanoteam.uz
-            # Install production dependencies if sync excluded them
-            # Actually we sync them or install them on server? 
-            # Installing on server is safer for architecture consistency.
+            
+            # Install production dependencies
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+            
+            # Run Laravel optimizations
             php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+            php artisan optimize:clear
+            php artisan optimize
+            
             # Ensure folder permissions
             chown -R www-data:www-data storage bootstrap/cache
             chmod -R 775 storage bootstrap/cache
+            
+            echo "Deployment successful!"
