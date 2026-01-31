@@ -16,9 +16,9 @@ class ProductController extends Controller
         $query = Product::with('category', 'stock');
 
         if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'ilike', '%'.$request->search.'%')
-                  ->orWhere('code', 'ilike', '%'.$request->search.'%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('code', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -27,8 +27,10 @@ class ProductController extends Controller
         }
 
         if ($request->status) {
-             if ($request->status === 'active') $query->where('is_active', true);
-             if ($request->status === 'inactive') $query->where('is_active', false);
+            if ($request->status === 'active')
+                $query->where('is_active', true);
+            if ($request->status === 'inactive')
+                $query->where('is_active', false);
         }
 
         $products = $query->latest()->paginate(10);
@@ -135,9 +137,9 @@ class ProductController extends Controller
         $isFiltered = false;
 
         if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'ilike', '%'.$request->search.'%')
-                  ->orWhere('code', 'ilike', '%'.$request->search.'%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('code', 'like', '%' . $request->search . '%');
             });
             $isFiltered = true;
         }
@@ -148,14 +150,14 @@ class ProductController extends Controller
         }
 
         if ($request->status) {
-             if ($request->status === 'active') {
-                 $query->where('is_active', true);
-                 $isFiltered = true;
-             }
-             if ($request->status === 'inactive') {
-                 $query->where('is_active', false);
-                 $isFiltered = true;
-             }
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+                $isFiltered = true;
+            }
+            if ($request->status === 'inactive') {
+                $query->where('is_active', false);
+                $isFiltered = true;
+            }
         }
 
         if ($isFiltered) {

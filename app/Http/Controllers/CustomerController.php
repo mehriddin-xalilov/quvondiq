@@ -16,10 +16,10 @@ class CustomerController extends Controller
         // Search filter
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('phone', 'ilike', "%{$search}%")
-                  ->orWhere('address', 'ilike', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
             });
         }
 
@@ -80,14 +80,18 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $customer->load(['sales' => function($q) {
-            $q->orderBy('created_at', 'desc');
-        }, 'payments' => function($q) {
-            $q->orderBy('created_at', 'desc');
-        }, 'debts' => function($q) {
-            $q->orderBy('created_at', 'desc');
-        }]);
-        
+        $customer->load([
+            'sales' => function ($q) {
+                $q->orderBy('created_at', 'desc');
+            },
+            'payments' => function ($q) {
+                $q->orderBy('created_at', 'desc');
+            },
+            'debts' => function ($q) {
+                $q->orderBy('created_at', 'desc');
+            }
+        ]);
+
         return view('customers.show', compact('customer'));
     }
 
@@ -136,10 +140,10 @@ class CustomerController extends Controller
         // Search filter
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('phone', 'ilike', "%{$search}%")
-                  ->orWhere('address', 'ilike', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
             });
             $isFiltered = true;
         }

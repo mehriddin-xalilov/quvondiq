@@ -53,7 +53,7 @@ class CategoryController extends Controller
             $file = $request->file('icon');
             $filename = time() . '_' . uniqid() . '.webp';
             $path = 'categories/' . $filename;
-            
+
             // Ensure directory exists
             if (!Storage::disk('public')->exists('categories')) {
                 Storage::disk('public')->makeDirectory('categories');
@@ -62,7 +62,7 @@ class CategoryController extends Controller
             // Read image and convert to WebP
             $image = Image::read($file);
             $image->toWebp(80)->save(storage_path('app/public/' . $path));
-            
+
             $validated['icon'] = $path;
         }
 
@@ -99,17 +99,17 @@ class CategoryController extends Controller
             $file = $request->file('icon');
             $filename = time() . '_' . uniqid() . '.webp';
             $path = 'categories/' . $filename;
-            
+
             if (!Storage::disk('public')->exists('categories')) {
                 Storage::disk('public')->makeDirectory('categories');
             }
 
             $image = Image::read($file);
             $image->toWebp(80)->save(storage_path('app/public/' . $path));
-            
+
             $validated['icon'] = $path;
         }
-        
+
         $validated['is_active'] = $request->has('is_active');
 
         $category->update($validated);
@@ -132,7 +132,7 @@ class CategoryController extends Controller
         if ($category->icon && Storage::disk('public')->exists($category->icon)) {
             Storage::disk('public')->delete($category->icon);
         }
-        
+
         $category->delete();
 
         return redirect()->route('categories.index')->with('success', 'Kategoriya o\'chirildi');
@@ -158,9 +158,9 @@ class CategoryController extends Controller
         // The user said "filter qilsa filterlangan datani".
         // Use `request` to check if any filter params exist, even if index() doesn't currently use them,
         // or effectively implement filtering for the export at least.
-        
+
         if ($request->search) {
-            $query->where('name', 'ilike', '%'.$request->search.'%');
+            $query->where('name', 'like', '%' . $request->search . '%');
             $isFiltered = true;
         }
 
