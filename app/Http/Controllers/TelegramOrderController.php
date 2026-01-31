@@ -158,7 +158,15 @@ class TelegramOrderController extends Controller
         $telegramUserId = $callbackQuery['from']['id'];
         $bot = new \App\Services\TelegramBotService();
 
-        $bot->answerCallbackQuery($callbackQuery['id']);
+        // Answer callback query (non-blocking - don't let it fail the webhook)
+        try {
+            $bot->answerCallbackQuery($callbackQuery['id']);
+        } catch (\Exception $e) {
+            \Log::warning('Failed to answer callback query', [
+                'callback_id' => $callbackQuery['id'],
+                'error' => $e->getMessage()
+            ]);
+        }
 
         // Category selected
         if (str_starts_with($data, 'category_')) {
