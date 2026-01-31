@@ -21,9 +21,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Webhook Route (Exclude from CSRF)
-Route::post('/api/telegram/webhook', [TelegramOrderController::class, 'webhook'])->name('telegram.webhook');
-
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
