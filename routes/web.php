@@ -22,7 +22,7 @@ Route::get('/', function () {
 });
 
 // Webhook Route (Exclude from CSRF)
-Route::post('/telegram/webhook', [TelegramOrderController::class, 'webhook'])->name('telegram.webhook');
+Route::post('/api/telegram/webhook', [TelegramOrderController::class, 'webhook'])->name('telegram.webhook');
 
 Route::middleware('auth')->group(function () {
     // Dashboard
