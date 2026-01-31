@@ -1,5 +1,5 @@
 <?php
-
+@dd('ok');
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
