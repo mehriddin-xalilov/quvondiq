@@ -140,9 +140,11 @@ class TelegramBotService
         // Log errors for debugging
         if ($result === false || $httpCode !== 200) {
             \Log::error('Telegram API Error', [
+                'url' => $url,
                 'method' => $method,
                 'http_code' => $httpCode,
                 'error' => $error,
+                'response' => $result,
                 'data' => $data,
             ]);
             
