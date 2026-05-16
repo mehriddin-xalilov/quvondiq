@@ -73,15 +73,4 @@ class ProfessionCrudTest extends TestCase
         $this->assertDatabaseMissing('professions', ['id' => $p->id]);
     }
 
-    public function test_search_filters_by_name(): void
-    {
-        $this->actingAsAdmin();
-        Profession::create(['name_uz' => 'Elektrogazpayvandchi']);
-        Profession::create(['name_uz' => 'Montajchi']);
-
-        $this->get(route('professions.index', ['q' => 'Montaj']))
-            ->assertOk()
-            ->assertSee('Montajchi')
-            ->assertDontSee('Elektrogazpayvandchi');
-    }
 }

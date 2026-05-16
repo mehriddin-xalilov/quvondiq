@@ -10,21 +10,9 @@
         <span class="text-sm text-slate-400">({{ $professions->total() }})</span>
     </h3>
 
-    <div class="flex items-center gap-2">
-        <form method="GET" class="flex">
-            <div class="relative">
-                <input type="text" name="q" value="{{ $search }}" placeholder="Qidirish..."
-                       class="form-input h-9 w-64 rounded-lg border border-slate-300 bg-transparent px-3 pl-9 text-xs+ hover:border-slate-400 focus:border-primary dark:border-navy-450">
-                <span class="pointer-events-none absolute inset-y-0 left-0 flex w-9 items-center justify-center text-slate-400">
-                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                </span>
-            </div>
-        </form>
-
-        <a href="{{ route('professions.create') }}" class="btn bg-primary font-medium text-white hover:bg-primary-focus dark:bg-accent dark:hover:bg-accent-focus">
-            <i class="fa-solid fa-plus mr-2"></i> Yangi
-        </a>
-    </div>
+    <a href="{{ route('professions.create') }}" class="btn bg-primary font-medium text-white hover:bg-primary-focus dark:bg-accent dark:hover:bg-accent-focus">
+        <i class="fa-solid fa-plus mr-2"></i> Yangi
+    </a>
 </div>
 
 <div class="card mt-5">
@@ -67,11 +55,7 @@
                 @empty
                 <tr>
                     <td colspan="7" class="text-center py-10 text-slate-400">
-                        @if($search)
-                            "{{ $search }}" bo'yicha mutaxassislik topilmadi.
-                        @else
-                            Mutaxassisliklar yo'q. Birinchisini qo'shing.
-                        @endif
+                        Mutaxassisliklar yo'q. Birinchisini qo'shing.
                     </td>
                 </tr>
                 @endforelse
