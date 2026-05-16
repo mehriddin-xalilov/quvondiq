@@ -3,164 +3,71 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create permissions
         $permissions = [
             // Dashboard
-            'view-dashboard',
-            
+            'dashboard.view',
+
             // Users
-            'view-users',
-            'create-users',
-            'edit-users',
-            'delete-users',
-            
-            // Customers
-            'view-customers',
-            'create-customers',
-            'edit-customers',
-            'delete-customers',
-            
-            // Categories
-            'view-categories',
-            'create-categories',
-            'edit-categories',
-            'delete-categories',
-            
-            // Products
-            'view-products',
-            'create-products',
-            'edit-products',
-            'delete-products',
-            
-            // Warehouse
-            'view-warehouse',
-            'stock-in',
-            'stock-out',
-            'adjust-stock',
-            'view-stock-movements',
-            
-            // Sales
-            'view-sales',
-            'create-sales',
-            'edit-sales',
-            'delete-sales',
-            'view-sale-items',
-            
-            // Payments & Debts
-            'view-debts',
-            'create-payments',
-            'view-payments',
-            'edit-debts',
-            
-            // Expenses
-            'view-expenses',
-            'create-expenses',
-            'edit-expenses',
-            'delete-expenses',
-            
-            // Reports
-            'view-reports',
-            'view-financial-reports',
-            'export-reports',
-            
-            // Telegram Orders
-            'view-telegram-orders',
-            'confirm-telegram-orders',
-            'manage-telegram-orders',
-            
-            // Notes
-            'view-notes',
-            'create-notes',
-            'edit-notes',
-            'delete-notes',
-            
-            // Settings
-            'view-settings',
-            'edit-settings',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
 
             // Roles
-            'view-roles',
-            'create-roles',
-            'edit-roles',
-            'delete-roles',
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+
+            // Document templates
+            'templates.view',
+            'templates.create',
+            'templates.edit',
+            'templates.delete',
+
+            // Document generation
+            'documents.generate',
+
+            // Lookups (regions, districts, professions)
+            'lookups.view',
+            'lookups.manage',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create roles and assign permissions
-
-        // 1. Super Admin - Full access
+        // Super Admin — barcha huquqlar
         $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
-        $superAdmin->givePermissionTo(Permission::all());
+        $superAdmin->syncPermissions(Permission::all());
 
-        // 2. Admin - Almost full access except user management
+        // Admin — shablon va hujjat boshqaruvi
         $admin = Role::firstOrCreate(['name' => 'Admin']);
-        $admin->givePermissionTo([
-            'view-dashboard',
-            'view-customers', 'create-customers', 'edit-customers', 'delete-customers',
-            'view-categories', 'create-categories', 'edit-categories', 'delete-categories',
-            'view-products', 'create-products', 'edit-products', 'delete-products',
-            'view-warehouse', 'stock-in', 'stock-out', 'adjust-stock', 'view-stock-movements',
-            'view-sales', 'create-sales', 'edit-sales', 'delete-sales', 'view-sale-items',
-            'view-debts', 'create-payments', 'view-payments', 'edit-debts',
-            'view-expenses', 'create-expenses', 'edit-expenses', 'delete-expenses',
-            'view-reports', 'view-financial-reports', 'export-reports',
-            'view-telegram-orders', 'confirm-telegram-orders', 'manage-telegram-orders',
-            'view-notes', 'create-notes', 'edit-notes', 'delete-notes',
-            'view-settings',
+        $admin->syncPermissions([
+            'dashboard.view',
+            'templates.view', 'templates.create', 'templates.edit', 'templates.delete',
+            'documents.generate',
+            'lookups.view', 'lookups.manage',
         ]);
 
-        // 3. Manager - Sales, customers, reports
-        $manager = Role::firstOrCreate(['name' => 'Manager']);
-        $manager->givePermissionTo([
-            'view-dashboard',
-            'view-customers', 'create-customers', 'edit-customers',
-            'view-products',
-            'view-warehouse', 'view-stock-movements',
-            'view-sales', 'create-sales', 'view-sale-items',
-            'view-debts', 'create-payments', 'view-payments',
-            'view-reports', 'view-financial-reports', 'export-reports',
-            'view-telegram-orders', 'confirm-telegram-orders',
-            'view-notes', 'create-notes', 'edit-notes',
+        // Operator — faqat hujjat generatsiya qilish
+        $operator = Role::firstOrCreate(['name' => 'Operator']);
+        $operator->syncPermissions([
+            'dashboard.view',
+            'templates.view',
+            'documents.generate',
+            'lookups.view',
         ]);
 
-        // 4. Sotuvchi (Salesperson) - Sales and customer management
-        $salesperson = Role::firstOrCreate(['name' => 'Sotuvchi']);
-        $salesperson->givePermissionTo([
-            'view-dashboard',
-            'view-customers', 'create-customers', 'edit-customers',
-            'view-products',
-            'view-warehouse',
-            'view-sales', 'create-sales', 'view-sale-items',
-            'view-debts', 'create-payments', 'view-payments',
-            'view-telegram-orders', 'confirm-telegram-orders',
-            'view-notes', 'create-notes',
-        ]);
-
-        // 5. Omborchi (Warehouse keeper) - Inventory management
-        $warehouseKeeper = Role::firstOrCreate(['name' => 'Omborchi']);
-        $warehouseKeeper->givePermissionTo([
-            'view-dashboard',
-            'view-products',
-            'view-warehouse', 'stock-in', 'stock-out', 'adjust-stock', 'view-stock-movements',
-            'view-notes', 'create-notes',
-        ]);
-
-        $this->command->info('Roles and permissions created successfully!');
+        $this->command->info('Roles and permissions seeded.');
     }
 }

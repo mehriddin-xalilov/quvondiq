@@ -1,0 +1,70 @@
+@extends('layouts.app')
+
+@section('title', 'Sertifikat #' . $sertifikat->raqam)
+@section('page-title', 'Sertifikat ma\'lumotlari')
+
+@section('content')
+<div class="flex items-center justify-between mt-4">
+    <a href="{{ route('sertifikatlar.index') }}" class="text-primary text-sm hover:underline">← Ro'yxatga qaytish</a>
+    <div class="space-x-2">
+        @if($sertifikat->certificate_path)
+        <a href="{{ route('sertifikatlar.download', $sertifikat) }}" class="btn bg-success text-white hover:bg-success-focus">
+            <i class="fa-solid fa-download mr-2"></i> .docx Yuklab olish
+        </a>
+        @endif
+        <a href="{{ route('sertifikatlar.edit', $sertifikat) }}" class="btn bg-warning text-white">
+            Tahrirlash
+        </a>
+    </div>
+</div>
+
+<div class="card p-5 mt-5">
+    <h3 class="text-lg font-medium text-primary">
+        Sertifikat № <span class="font-mono">{{ $sertifikat->seria }}{{ $sertifikat->raqam }}</span>
+    </h3>
+
+    <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
+        <div>
+            <p class="text-xs+ uppercase text-slate-400 mb-2">F.I.O.</p>
+            <p><strong>UZ:</strong> {{ $sertifikat->familiya_uz }} {{ $sertifikat->ism_uz }} {{ $sertifikat->otasi_ismi_uz }}</p>
+            @if($sertifikat->familiya_en)<p><strong>EN:</strong> {{ $sertifikat->familiya_en }} {{ $sertifikat->ism_en }} {{ $sertifikat->otasi_ismi_en }}</p>@endif
+            @if($sertifikat->familiya_ru)<p><strong>RU:</strong> {{ $sertifikat->familiya_ru }} {{ $sertifikat->ism_ru }} {{ $sertifikat->otasi_ismi_ru }}</p>@endif
+        </div>
+
+        <div>
+            <p class="text-xs+ uppercase text-slate-400 mb-2">Joy</p>
+            <p>{{ $sertifikat->region?->name_uz }} — {{ $sertifikat->district?->name_uz ?? '—' }}</p>
+        </div>
+
+        <div>
+            <p class="text-xs+ uppercase text-slate-400 mb-2">Kasb</p>
+            <p><strong>UZ:</strong> {{ $sertifikat->kasb_uz }}</p>
+            @if($sertifikat->kasb_en)<p><strong>EN:</strong> {{ $sertifikat->kasb_en }}</p>@endif
+            @if($sertifikat->kasb_ru)<p><strong>RU:</strong> {{ $sertifikat->kasb_ru }}</p>@endif
+        </div>
+
+        <div>
+            <p class="text-xs+ uppercase text-slate-400 mb-2">Davomiyligi</p>
+            <p>{{ $sertifikat->boshlanish_sanasi?->format('d.m.Y') }} — {{ $sertifikat->tugash_sanasi?->format('d.m.Y') }}</p>
+            <p class="text-slate-500">{{ $sertifikat->soat }} soat</p>
+        </div>
+
+        <div>
+            <p class="text-xs+ uppercase text-slate-400 mb-2">Direktor</p>
+            <p>{{ $sertifikat->direktor_fio }}</p>
+        </div>
+
+        <div>
+            <p class="text-xs+ uppercase text-slate-400 mb-2">Ro'yxatga olish</p>
+            <p>{{ $sertifikat->registratsiya_raqami ?? '—' }} — {{ $sertifikat->registratsiya_sanasi?->format('d.m.Y') ?? '—' }}</p>
+        </div>
+    </div>
+
+    @if(!$sertifikat->certificate_path)
+    <div class="mt-5 p-3 rounded bg-error/10 text-error text-sm">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Hujjat hali generatsiya qilinmagan. Tahrirlab qayta saqlang.
+    </div>
+    @endif
+</div>
+@endsection

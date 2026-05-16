@@ -34,30 +34,4 @@ class User extends Authenticatable
             'is_active' => 'boolean',
         ];
     }
-
-    // Relationships
-    public function sales()
-    {
-        return $this->hasMany(Sale::class);
-    }
-
-    public function stockMovements()
-    {
-        return $this->hasMany(StockMovement::class);
-    }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
-    }
-
-    public function expenses()
-    {
-        return $this->hasMany(Expense::class);
-    }
-
-    public function notes()
-    {
-        return $this->hasMany(Note::class);
-    }
 }

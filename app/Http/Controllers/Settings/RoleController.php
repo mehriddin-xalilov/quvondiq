@@ -21,7 +21,7 @@ class RoleController extends Controller
     public function create()
     {
         $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode('-', $permission->name)[1] ?? 'other';
+            return explode('.', $permission->name)[0] ?? 'other';
         });
         
         return view('settings.roles.create', compact('permissions'));
@@ -54,7 +54,7 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode('-', $permission->name)[1] ?? 'other';
+            return explode('.', $permission->name)[0] ?? 'other';
         });
         
         $rolePermissions = $role->permissions->pluck('name')->toArray();

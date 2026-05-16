@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
-    <title>Kirish - Yem Do'koni CRM</title>
+    <title>Kirish - {{ config('app.name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 
     <!-- CSS Assets -->
@@ -34,7 +34,7 @@
         <main class="grid w-full grow grid-cols-1 place-items-center">
             <div class="w-full max-w-[26rem] p-4 sm:px-5">
                 <div class="text-center">
-                    <img class="mx-auto size-16 object-contain" src="{{ $shopInfo->logo_path ? asset('storage/' . $shopInfo->logo_path) : asset('images/app-logo.png') }}" alt="logo">
+                    <img class="mx-auto size-16 object-contain" src="{{ asset('images/app-logo.png') }}" alt="logo">
                     <div class="mt-4">
                         <h2 class="text-2xl font-semibold text-slate-600 dark:text-navy-100">
                             Xush kelibsiz

@@ -34,7 +34,7 @@
         Barcha Foydalanuvchilar
     </h3>
     
-    @can('create-users')
+    @can('users.create')
     <div class="flex space-x-2">
         <a href="{{ route('settings.users.export') }}" class="btn bg-success font-medium text-white hover:bg-success-focus focus:bg-success-focus active:bg-success-focus/90">
             <i class="fa-solid fa-file-excel mr-2"></i> Excel
@@ -136,7 +136,7 @@
                                                 <span>Ko'rish</span>
                                             </a>
                                         </li>
-                                        @can('edit-users')
+                                        @can('users.edit')
                                         <li>
                                             <a href="{{ route('settings.users.edit', $user) }}" class="flex h-8 items-center space-x-3 px-3 pr-8 font-medium tracking-wide outline-none transition-all hover:bg-slate-100 hover:text-slate-800 focus:bg-slate-100 focus:text-slate-800 dark:hover:bg-navy-600 dark:hover:text-navy-100 dark:focus:bg-navy-600 dark:focus:text-navy-100">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5 text-slate-400 dark:text-navy-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -146,7 +146,7 @@
                                             </a>
                                         </li>
                                         @endcan
-                                        @can('delete-users')
+                                        @can('users.delete')
                                         <li>
                                             <div class="my-1 h-px bg-slate-150 dark:bg-navy-500"></div>
                                         </li>
