@@ -51,12 +51,7 @@ class GuvohnomaController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        $guvohnoma->guvohnoma_path = $this->generator->generate(
-            $template,
-            $this->buildPlaceholderMap($guvohnoma),
-            'generated/guvohnomalar',
-            $guvohnoma->verifyUrl()
-        );
+        $guvohnoma->guvohnoma_path = $this->generateForGuvohnoma($template, $guvohnoma);
         $guvohnoma->save();
 
         return redirect()
@@ -97,12 +92,7 @@ class GuvohnomaController extends Controller
 
         $guvohnoma->update($data);
 
-        $guvohnoma->guvohnoma_path = $this->generator->generate(
-            $template,
-            $this->buildPlaceholderMap($guvohnoma),
-            'generated/guvohnomalar',
-            $guvohnoma->verifyUrl()
-        );
+        $guvohnoma->guvohnoma_path = $this->generateForGuvohnoma($template, $guvohnoma);
         $guvohnoma->save();
 
         return redirect()
@@ -126,23 +116,51 @@ class GuvohnomaController extends Controller
     {
         abort_unless($guvohnoma->guvohnoma_path, 404);
 
+        $ext = pathinfo($guvohnoma->guvohnoma_path, PATHINFO_EXTENSION) ?: 'docx';
         return Storage::disk('local')->download(
             $guvohnoma->guvohnoma_path,
-            sprintf('Guvohnoma_%s.docx', $guvohnoma->raqam)
+            sprintf('Guvohnoma_%s.%s', $guvohnoma->raqam, $ext)
         );
+    }
+
+    /**
+     * Docx generatsiya qilib, agar LibreOffice mavjud bo'lsa darhol PDF ga
+     * konvertatsiya qiladi va asl docx ni o'chiradi. Yakuniy fayl yo'lini
+     * (PDF yoki docx, fallback) qaytaradi.
+     */
+    private function generateForGuvohnoma(DocumentTemplate $template, Guvohnoma $guvohnoma): string
+    {
+        $docxRel = $this->generator->generate(
+            $template,
+            $this->buildPlaceholderMap($guvohnoma),
+            'generated/guvohnomalar',
+            $guvohnoma->verifyUrl()
+        );
+
+        if (app()->environment('testing')) {
+            return $docxRel;
+        }
+
+        $docxAbs = Storage::disk('local')->path($docxRel);
+        $pdfAbs  = $this->generator->convertDocxToPdf($docxAbs);
+
+        if ($pdfAbs === null) {
+            return $docxRel;
+        }
+
+        @unlink($docxAbs);
+        $localRoot = Storage::disk('local')->path('');
+        return ltrim(substr($pdfAbs, strlen($localRoot)), DIRECTORY_SEPARATOR . '/');
     }
 
     private function validateInput(Request $request, ?int $ignoreId = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'template_id'             => 'required|exists:document_templates,id',
             'raqam'                   => 'required|string|max:64|unique:guvohnomalar,raqam' . ($ignoreId ? ',' . $ignoreId : ''),
 
-            'familiya_oz'             => 'required|string|max:255',
-            'familiya_ru'             => 'nullable|string|max:255',
-            'ism_oz'                  => 'required|string|max:255',
-            'ism_ru'                  => 'nullable|string|max:255',
-            'otasi_ismi_oz'           => 'nullable|string|max:255',
+            'familiya_ru'             => 'required|string|max:255',
+            'ism_ru'                  => 'required|string|max:255',
             'otasi_ismi_ru'           => 'nullable|string|max:255',
 
             'region_id'               => 'nullable|exists:regions,id',
@@ -173,6 +191,14 @@ class GuvohnomaController extends Controller
             'ball_ishlab_chiqarish_oz'=> 'nullable|string|max:64',
             'ball_ishlab_chiqarish_ru'=> 'nullable|string|max:64',
         ]);
+
+        // FIO bitta marta kiritiladi (Кирилл); _oz ustunlariga ham aynan shu qiymat
+        // yoziladi, chunki bazada _oz NOT NULL bo'lishi mumkin va legacy kod _oz ga tayanadi.
+        $data['familiya_oz']   = $data['familiya_ru'];
+        $data['ism_oz']        = $data['ism_ru'];
+        $data['otasi_ismi_oz'] = $data['otasi_ismi_ru'] ?? null;
+
+        return $data;
     }
 
     private function buildPlaceholderMap(Guvohnoma $g): array
@@ -257,8 +283,8 @@ class GuvohnomaController extends Controller
 
     private function monthNameUz(?int $m): string
     {
-        $names = [1=>'yanvar',2=>'fevral',3=>'mart',4=>'aprel',5=>'may',6=>'iyun',
-                  7=>'iyul',8=>'avgust',9=>'sentyabr',10=>'oktyabr',11=>'noyabr',12=>'dekabr'];
+        $names = [1=>'январ',2=>'феврал',3=>'март',4=>'апрел',5=>'май',6=>'июн',
+                  7=>'июл',8=>'август',9=>'сентябр',10=>'октябр',11=>'ноябр',12=>'декабр'];
         return $m ? ($names[$m] ?? '') : '';
     }
 

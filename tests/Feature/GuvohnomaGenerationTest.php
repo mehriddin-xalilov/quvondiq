@@ -25,9 +25,9 @@ class GuvohnomaGenerationTest extends TestCase
         $payload = [
             'template_id'         => $tpl->id,
             'raqam'               => '01489',
-            'familiya_oz'         => 'Шодиев',
-            'ism_oz'              => 'Хусен',
-            'otasi_ismi_oz'       => 'Бахронович',
+            'familiya_ru'         => 'Шодиев',
+            'ism_ru'              => 'Хусен',
+            'otasi_ismi_ru'       => 'Бахронович',
             'mutaxassislik_oz'    => 'Пўлат конструкцияларни монтаж қилиш бўйича монтажчи',
             'razryad'             => '5',
             'boshlanish_sanasi'   => '2026-03-16',
@@ -67,7 +67,7 @@ class GuvohnomaGenerationTest extends TestCase
         $this->post(route('guvohnomalar.store'), [
             'template_id'         => $tpl->id,
             'raqam'               => '00001',
-            'familiya_oz'         => 'X', 'ism_oz' => 'Y',
+            'familiya_ru'         => 'X', 'ism_ru' => 'Y',
             'mutaxassislik_oz'    => 'Z',
             'boshlanish_sanasi'   => '2026-01-01',
             'tugash_sanasi'       => '2026-02-01',
@@ -87,7 +87,9 @@ class GuvohnomaGenerationTest extends TestCase
         $g = Guvohnoma::create([
             'raqam'               => '88888',
             'familiya_oz'         => 'Eski',
+            'familiya_ru'         => 'Eski',
             'ism_oz'              => 'X',
+            'ism_ru'              => 'X',
             'mutaxassislik_oz'    => 'Y',
             'boshlanish_sanasi'   => '2026-01-01',
             'tugash_sanasi'       => '2026-02-01',
@@ -101,8 +103,8 @@ class GuvohnomaGenerationTest extends TestCase
         $this->put(route('guvohnomalar.update', $g), [
             'template_id'         => $tpl->id,
             'raqam'               => '88888',
-            'familiya_oz'         => 'Yangi',
-            'ism_oz'              => 'X',
+            'familiya_ru'         => 'Yangi',
+            'ism_ru'              => 'X',
             'mutaxassislik_oz'    => 'Y',
             'boshlanish_sanasi'   => '2026-01-01',
             'tugash_sanasi'       => '2026-02-01',

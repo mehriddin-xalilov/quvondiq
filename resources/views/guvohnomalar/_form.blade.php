@@ -72,31 +72,30 @@
                 </div>
             </div>
             <div class="space-y-5 p-4 sm:p-5">
-                @foreach([['oz', 'Кирилл (Ўзбек)'], ['ru', 'Русский']] as [$lang, $label])
-                <div>
-                    <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300 mb-2">{{ $label }}</p>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <label class="block">
-                            <span>Фамилия {!! $lang === 'oz' ? '<span class="text-error">*</span>' : '' !!}</span>
-                            <input name="familiya_{{ $lang }}" {{ $lang === 'oz' ? 'required' : '' }}
-                                   value="{{ old('familiya_'.$lang, $g?->{'familiya_'.$lang}) }}"
-                                   class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                        </label>
-                        <label class="block">
-                            <span>Исм {!! $lang === 'oz' ? '<span class="text-error">*</span>' : '' !!}</span>
-                            <input name="ism_{{ $lang }}" {{ $lang === 'oz' ? 'required' : '' }}
-                                   value="{{ old('ism_'.$lang, $g?->{'ism_'.$lang}) }}"
-                                   class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                        </label>
-                        <label class="block">
-                            <span>Отасининг исми</span>
-                            <input name="otasi_ismi_{{ $lang }}"
-                                   value="{{ old('otasi_ismi_'.$lang, $g?->{'otasi_ismi_'.$lang}) }}"
-                                   class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                        </label>
-                    </div>
+                <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">Кирилл алифбосида киритинг</p>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <label class="block">
+                        <span>Фамилия <span class="text-error">*</span></span>
+                        <input name="familiya_ru" required
+                               value="{{ old('familiya_ru', $g?->familiya_ru ?? $g?->familiya_oz) }}"
+                               placeholder="Иванов"
+                               class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                    </label>
+                    <label class="block">
+                        <span>Исм <span class="text-error">*</span></span>
+                        <input name="ism_ru" required
+                               value="{{ old('ism_ru', $g?->ism_ru ?? $g?->ism_oz) }}"
+                               placeholder="Иван"
+                               class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                    </label>
+                    <label class="block">
+                        <span>Отасининг исми</span>
+                        <input name="otasi_ismi_ru"
+                               value="{{ old('otasi_ismi_ru', $g?->otasi_ismi_ru ?? $g?->otasi_ismi_oz) }}"
+                               placeholder="Петрович"
+                               class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                    </label>
                 </div>
-                @endforeach
             </div>
         </div>
 

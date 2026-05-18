@@ -396,14 +396,15 @@
         <p class="qr-hint">Отсканируйте QR-код для проверки подлинности</p>
     </div>
 
-    {{-- СКАЧАТЬ PDF --}}
+    {{-- СКАЧАТЬ --}}
     @if($guvohnoma->guvohnoma_path)
-    <a href="{{ route('certificate.download', $guvohnoma->verify_code) }}" class="btn-download">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4v10z"/>
-        </svg>
-        Скачать свидетельство (PDF)
-    </a>
+        @php $ext = strtoupper(pathinfo($guvohnoma->guvohnoma_path, PATHINFO_EXTENSION) ?: 'PDF'); @endphp
+        <a href="{{ route('certificate.download', $guvohnoma->verify_code) }}" class="btn-download">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4v10z"/>
+            </svg>
+            Скачать свидетельство ({{ $ext }})
+        </a>
     @endif
 
 </div>
