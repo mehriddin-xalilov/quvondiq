@@ -307,6 +307,7 @@ class GuvohnomaController extends Controller
             'chairname'               => $g->komissiya_raisi_fio,
             'member1'                 => $g->komissiya_azosi_fio,
             'city'                    => $g->berilgan_joy_ru ?: $g->berilgan_joy_oz,
+            'city_uz'                 => $g->berilgan_joy_oz ?: $g->berilgan_joy_ru,
             'issued_date'             => $issued?->format('d.m.Y'),
         ];
     }
