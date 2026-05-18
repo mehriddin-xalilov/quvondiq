@@ -54,7 +54,8 @@ class GuvohnomaController extends Controller
         $guvohnoma->guvohnoma_path = $this->generator->generate(
             $template,
             $this->buildPlaceholderMap($guvohnoma),
-            'generated/guvohnomalar'
+            'generated/guvohnomalar',
+            $guvohnoma->verifyUrl()
         );
         $guvohnoma->save();
 
@@ -99,7 +100,8 @@ class GuvohnomaController extends Controller
         $guvohnoma->guvohnoma_path = $this->generator->generate(
             $template,
             $this->buildPlaceholderMap($guvohnoma),
-            'generated/guvohnomalar'
+            'generated/guvohnomalar',
+            $guvohnoma->verifyUrl()
         );
         $guvohnoma->save();
 
@@ -178,47 +180,92 @@ class GuvohnomaController extends Controller
         $region = $g->region;
         $district = $g->district;
 
-        return [
-            'raqam'                   => $g->raqam,
+        $start = $g->boshlanish_sanasi;
+        $end   = $g->tugash_sanasi;
+        $issued = $g->berilgan_sanasi;
 
+        return [
+            // --- Eski (legacy) kalitlar, ilgari yuklangan shablonlar ham ishlasin ---
+            'raqam'                   => $g->raqam,
             'familiya_oz'             => $g->familiya_oz,
             'familiya_ru'             => $g->familiya_ru,
             'ism_oz'                  => $g->ism_oz,
             'ism_ru'                  => $g->ism_ru,
             'otasi_ismi_oz'           => $g->otasi_ismi_oz,
             'otasi_ismi_ru'           => $g->otasi_ismi_ru,
-
-            'fio_oz'                  => trim("{$g->familiya_oz} {$g->ism_oz} {$g->otasi_ismi_oz}"),
-            'fio_ru'                  => trim("{$g->familiya_ru} {$g->ism_ru} {$g->otasi_ismi_ru}"),
-
+            'fio_oz'                  => $g->fullNameOz(),
+            'fio_ru'                  => $g->fullNameRu(),
             'viloyat_oz'              => $region?->name_oz,
             'viloyat_ru'              => $region?->name_ru,
             'tuman_oz'                => $district?->name_oz,
             'tuman_ru'                => $district?->name_ru,
             'berilgan_joy_oz'         => $g->berilgan_joy_oz,
             'berilgan_joy_ru'         => $g->berilgan_joy_ru,
-
             'mutaxassislik_oz'        => $g->mutaxassislik_oz,
             'mutaxassislik_ru'        => $g->mutaxassislik_ru,
             'razryad'                 => $g->razryad,
-
-            'boshlanish_sanasi'       => $g->boshlanish_sanasi?->format('d.m.Y'),
-            'tugash_sanasi'           => $g->tugash_sanasi?->format('d.m.Y'),
-            'berilgan_sanasi'         => $g->berilgan_sanasi?->format('d.m.Y'),
-
+            'boshlanish_sanasi'       => $start?->format('d.m.Y'),
+            'tugash_sanasi'           => $end?->format('d.m.Y'),
+            'berilgan_sanasi'         => $issued?->format('d.m.Y'),
             'protokol_raqami'         => $g->protokol_raqami,
             'protokol_sanasi'         => $g->protokol_sanasi?->format('d.m.Y'),
-
             'komissiya_raisi_fio'     => $g->komissiya_raisi_fio,
             'komissiya_azosi_fio'     => $g->komissiya_azosi_fio,
             'direktor_fio'            => $g->direktor_fio,
-
             'ball_umumiy_oz'          => $g->ball_umumiy_oz,
             'ball_umumiy_ru'          => $g->ball_umumiy_ru,
             'ball_maxsus_oz'          => $g->ball_maxsus_oz,
             'ball_maxsus_ru'          => $g->ball_maxsus_ru,
             'ball_ishlab_chiqarish_oz'=> $g->ball_ishlab_chiqarish_oz,
             'ball_ishlab_chiqarish_ru'=> $g->ball_ishlab_chiqarish_ru,
+
+            // --- Yangi (shablon.docx) kalitlari ---
+            'number'                  => $g->raqam,
+            'name'                    => $g->ism_ru ?: $g->ism_oz,
+            'surname'                 => $g->familiya_ru ?: $g->familiya_oz,
+            'patronymic'              => $g->otasi_ismi_ru ?: $g->otasi_ismi_oz,
+            'surname_initials'        => $g->surnameInitialsRu(),
+
+            'speciality_uz'           => $g->mutaxassislik_oz,
+            'speciality_ru'           => $g->mutaxassislik_ru ?: $g->mutaxassislik_oz,
+            'rank'                    => $g->razryad,
+            'rank_ru'                 => $g->razryad,
+
+            'general_uz'              => $g->ball_umumiy_oz,
+            'general_ru'              => $g->ball_umumiy_ru ?: $g->ball_umumiy_oz,
+            'special_uz'              => $g->ball_maxsus_oz,
+            'special_ru'              => $g->ball_maxsus_ru ?: $g->ball_maxsus_oz,
+            'production_uz'           => $g->ball_ishlab_chiqarish_oz,
+
+            'start_day'               => $start?->format('d'),
+            'start_month_uz'          => $this->monthNameUz($start?->month),
+            'start_month_ru'          => $this->monthNameRu($start?->month),
+            'start_year'              => $start?->format('Y'),
+
+            'end_day'                 => $end?->format('d'),
+            'end_month_uz'            => $this->monthNameUz($end?->month),
+            'end_month_ru'            => $this->monthNameRu($end?->month),
+            'end_year'                => $end?->format('Y'),
+
+            'protocol_no'             => $g->protokol_raqami,
+            'chairname'               => $g->komissiya_raisi_fio,
+            'member1'                 => $g->komissiya_azosi_fio,
+            'city'                    => $g->berilgan_joy_ru ?: $g->berilgan_joy_oz,
+            'issued_date'             => $issued?->format('d.m.Y'),
         ];
+    }
+
+    private function monthNameUz(?int $m): string
+    {
+        $names = [1=>'yanvar',2=>'fevral',3=>'mart',4=>'aprel',5=>'may',6=>'iyun',
+                  7=>'iyul',8=>'avgust',9=>'sentyabr',10=>'oktyabr',11=>'noyabr',12=>'dekabr'];
+        return $m ? ($names[$m] ?? '') : '';
+    }
+
+    private function monthNameRu(?int $m): string
+    {
+        $names = [1=>'января',2=>'февраля',3=>'марта',4=>'апреля',5=>'мая',6=>'июня',
+                  7=>'июля',8=>'августа',9=>'сентября',10=>'октября',11=>'ноября',12=>'декабря'];
+        return $m ? ($names[$m] ?? '') : '';
     }
 }

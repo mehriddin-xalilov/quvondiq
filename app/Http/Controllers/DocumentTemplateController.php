@@ -34,7 +34,7 @@ class DocumentTemplateController extends Controller
             'name'        => 'required|string|max:255',
             'type'        => 'required|in:guvohnoma,certificate',
             'description' => 'nullable|string',
-            'file'        => 'required|file|mimes:docx|max:10240',
+            'file'        => ['required', 'file', 'extensions:docx', 'mimes:docx,zip', 'max:10240'],
             'is_active'   => 'nullable|boolean',
         ]);
 
@@ -81,7 +81,7 @@ class DocumentTemplateController extends Controller
             'name'        => 'required|string|max:255',
             'type'        => 'required|in:guvohnoma,certificate',
             'description' => 'nullable|string',
-            'file'        => 'nullable|file|mimes:docx|max:10240',
+            'file'        => ['nullable', 'file', 'extensions:docx', 'mimes:docx,zip', 'max:10240'],
             'is_active'   => 'nullable|boolean',
         ]);
 

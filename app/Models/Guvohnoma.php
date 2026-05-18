@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Guvohnoma extends Model
 {
@@ -20,6 +21,43 @@ class Guvohnoma extends Model
         'berilgan_sanasi'   => 'date',
         'protokol_sanasi'   => 'date',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->verify_code)) {
+                do {
+                    $code = strtoupper(Str::random(12));
+                } while (static::where('verify_code', $code)->exists());
+
+                $model->verify_code = $code;
+            }
+        });
+    }
+
+    public function verifyUrl(): string
+    {
+        return route('certificate.verify', $this->verify_code);
+    }
+
+    public function fullNameOz(): string
+    {
+        return trim("{$this->familiya_oz} {$this->ism_oz} {$this->otasi_ismi_oz}");
+    }
+
+    public function fullNameRu(): string
+    {
+        return trim("{$this->familiya_ru} {$this->ism_ru} {$this->otasi_ismi_ru}");
+    }
+
+    public function surnameInitialsRu(): string
+    {
+        $i = mb_substr($this->ism_ru ?? '', 0, 1);
+        $o = mb_substr($this->otasi_ismi_ru ?? '', 0, 1);
+        return trim($this->familiya_ru . ($i ? " {$i}." : '') . ($o ? "{$o}." : ''));
+    }
 
     public function region(): BelongsTo
     {

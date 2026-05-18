@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\GuvohnomaController;
@@ -14,6 +15,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+// --- Ochiq sahifalar (login talab etilmaydi) ---
+Route::get('/verify/{code}', [CertificateVerifyController::class, 'show'])
+    ->name('certificate.verify');
+Route::get('/verify/{code}/download', [CertificateVerifyController::class, 'downloadPdf'])
+    ->name('certificate.download');
+
 
 Route::middleware('auth')->group(function () {
     // Dashboard
