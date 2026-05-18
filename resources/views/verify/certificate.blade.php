@@ -205,6 +205,11 @@
             border-radius: 12px;
             border: 3px solid var(--primary-light);
         }
+        /* Mobilda QR kerak emas — foydalanuvchi shu sahifaga QR orqali kelgan,
+           va PDF ichida ham QR bor. */
+        @media (max-width: 768px) {
+            .qr-card { display: none; }
+        }
         .qr-hint {
             font-size: 12px;
             color: var(--text-muted);
