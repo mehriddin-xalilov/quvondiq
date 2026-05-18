@@ -285,7 +285,7 @@ class GuvohnomaController extends Controller
             'speciality_uz'           => $g->mutaxassislik_oz,
             'speciality_ru'           => $g->mutaxassislik_ru ?: $g->mutaxassislik_oz,
             'rank'                    => $g->razryad,
-            'rank_ru'                 => $g->razryad,
+            'rank_ru'                 => $this->rankWordRu($g->razryad),
 
             'general_uz'              => $g->ball_umumiy_oz,
             'general_ru'              => $g->ball_umumiy_ru ?: $g->ball_umumiy_oz,
@@ -316,6 +316,27 @@ class GuvohnomaController extends Controller
         $names = [1=>'январ',2=>'феврал',3=>'март',4=>'апрел',5=>'май',6=>'июн',
                   7=>'июл',8=>'август',9=>'сентябр',10=>'октябр',11=>'ноябр',12=>'декабр'];
         return $m ? ($names[$m] ?? '') : '';
+    }
+
+    /**
+     * `razryad` raqamini ruschasi sifatida (genitive ordinal) qaytaradi —
+     * shablonda `{{rank}} ({{rank_ru}}) разряда` ko'rinishida ishlatiladi,
+     * masalan: 6 → "шестого", 3 → "третьего".
+     */
+    private function rankWordRu(?string $razryad): string
+    {
+        if ($razryad === null || $razryad === '') {
+            return '';
+        }
+        if (!preg_match('/^(\d+)/', trim($razryad), $m)) {
+            return $razryad;
+        }
+        $words = [
+            1=>'первого',2=>'второго',3=>'третьего',4=>'четвёртого',5=>'пятого',6=>'шестого',
+            7=>'седьмого',8=>'восьмого',9=>'девятого',10=>'десятого',11=>'одиннадцатого',
+            12=>'двенадцатого',13=>'тринадцатого',14=>'четырнадцатого',15=>'пятнадцатого',
+        ];
+        return $words[(int) $m[1]] ?? $razryad;
     }
 
     private function monthNameRu(?int $m): string
