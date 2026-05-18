@@ -116,11 +116,41 @@ class GuvohnomaController extends Controller
     {
         abort_unless($guvohnoma->guvohnoma_path, 404);
 
-        $ext = pathinfo($guvohnoma->guvohnoma_path, PATHINFO_EXTENSION) ?: 'docx';
+        $this->ensurePdf($guvohnoma);
+
+        $ext = pathinfo($guvohnoma->guvohnoma_path, PATHINFO_EXTENSION) ?: 'pdf';
         return Storage::disk('local')->download(
             $guvohnoma->guvohnoma_path,
             sprintf('Guvohnoma_%s.%s', $guvohnoma->raqam, $ext)
         );
+    }
+
+    /**
+     * Agar bazada saqlangan fayl hali ham .docx bo'lsa va serverda LibreOffice
+     * mavjud bo'lsa — PDF'ga konvertatsiya qilib, docx'ni o'chiradi va yangi
+     * yo'lni Guvohnoma'ga yozadi. Aks holda hech narsani qilmaydi.
+     */
+    private function ensurePdf(Guvohnoma $guvohnoma): void
+    {
+        $path = $guvohnoma->guvohnoma_path;
+        if (!$path || !str_ends_with(strtolower($path), '.docx')) {
+            return;
+        }
+
+        $docxAbs = Storage::disk('local')->path($path);
+        if (!file_exists($docxAbs)) {
+            return;
+        }
+
+        $pdfAbs = $this->generator->convertDocxToPdf($docxAbs);
+        if ($pdfAbs === null) {
+            return;
+        }
+
+        @unlink($docxAbs);
+        $localRoot = Storage::disk('local')->path('');
+        $guvohnoma->guvohnoma_path = ltrim(substr($pdfAbs, strlen($localRoot)), DIRECTORY_SEPARATOR . '/');
+        $guvohnoma->save();
     }
 
     /**

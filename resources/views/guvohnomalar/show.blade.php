@@ -9,7 +9,7 @@
     <div class="space-x-2">
         @if($guvohnoma->guvohnoma_path)
         <a href="{{ route('guvohnomalar.download', $guvohnoma) }}" class="btn bg-success text-white hover:bg-success-focus">
-            <i class="fa-solid fa-download mr-2"></i> .docx Yuklab olish
+            <i class="fa-solid fa-file-pdf mr-2"></i> PDF Yuklab olish
         </a>
         @endif
         <a href="{{ route('guvohnomalar.edit', $guvohnoma) }}" class="btn bg-warning text-white">Tahrirlash</a>
@@ -24,8 +24,7 @@
     <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
         <div>
             <p class="text-xs+ uppercase text-slate-400 mb-2">Ф.И.О.</p>
-            <p><strong>UZ-Кирилл:</strong> {{ $guvohnoma->familiya_oz }} {{ $guvohnoma->ism_oz }} {{ $guvohnoma->otasi_ismi_oz }}</p>
-            @if($guvohnoma->familiya_ru)<p><strong>Русский:</strong> {{ $guvohnoma->familiya_ru }} {{ $guvohnoma->ism_ru }} {{ $guvohnoma->otasi_ismi_ru }}</p>@endif
+            <p>{{ trim(($guvohnoma->familiya_ru ?: $guvohnoma->familiya_oz) . ' ' . ($guvohnoma->ism_ru ?: $guvohnoma->ism_oz) . ' ' . ($guvohnoma->otasi_ismi_ru ?: $guvohnoma->otasi_ismi_oz)) }}</p>
         </div>
 
         <div>

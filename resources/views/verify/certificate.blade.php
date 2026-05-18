@@ -148,24 +148,45 @@
         .grades-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 1px;
-            background: var(--border);
+            gap: 10px;
+            padding: 16px;
         }
         .grade-cell {
-            background: white;
-            padding: 14px 12px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 1px solid #a7f3d0;
+            border-radius: 12px;
+            padding: 16px 10px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .grade-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--success);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
         }
         .grade-label {
             font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
+            color: #047857;
+            font-weight: 500;
             line-height: 1.3;
         }
         .grade-value {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
-            color: var(--success);
+            color: #064e3b;
+            line-height: 1.2;
+        }
+        @media (max-width: 400px) {
+            .grades-grid { grid-template-columns: 1fr; }
         }
 
         /* --- QR SECTION --- */
@@ -222,7 +243,6 @@
 
         @media (max-width: 400px) {
             .info-label { min-width: 100px; }
-            .grades-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -258,12 +278,8 @@
                 <span class="info-value"><span class="badge-num">{{ $guvohnoma->raqam }}</span></span>
             </div>
             <div class="info-row">
-                <span class="info-label">Ф.И.О. (рус.)</span>
-                <span class="info-value">{{ $guvohnoma->fullNameRu() }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Ф.И.О. (ўзб.)</span>
-                <span class="info-value">{{ $guvohnoma->fullNameOz() }}</span>
+                <span class="info-label">Ф.И.О.</span>
+                <span class="info-value">{{ $guvohnoma->fullNameRu() ?: $guvohnoma->fullNameOz() }}</span>
             </div>
         </div>
     </div>
@@ -340,16 +356,31 @@
         <div class="card-body">
             <div class="grades-grid">
                 <div class="grade-cell">
-                    <div class="grade-label">Общий<br>курс</div>
-                    <div class="grade-value">{{ $guvohnoma->ball_umumiy_ru ?? '—' }}</div>
+                    <span class="grade-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </span>
+                    <div class="grade-label">Общий курс</div>
+                    <div class="grade-value">{{ $guvohnoma->ball_umumiy_ru ?: $guvohnoma->ball_umumiy_oz ?: '—' }}</div>
                 </div>
                 <div class="grade-cell">
-                    <div class="grade-label">Спец.<br>курс</div>
-                    <div class="grade-value">{{ $guvohnoma->ball_maxsus_ru ?? '—' }}</div>
+                    <span class="grade-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </span>
+                    <div class="grade-label">Спец. курс</div>
+                    <div class="grade-value">{{ $guvohnoma->ball_maxsus_ru ?: $guvohnoma->ball_maxsus_oz ?: '—' }}</div>
                 </div>
                 <div class="grade-cell">
-                    <div class="grade-label">Произ-во<br>практика</div>
-                    <div class="grade-value">{{ $guvohnoma->ball_ishlab_chiqarish_ru ?? '—' }}</div>
+                    <span class="grade-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+                        </svg>
+                    </span>
+                    <div class="grade-label">Производство</div>
+                    <div class="grade-value">{{ $guvohnoma->ball_ishlab_chiqarish_ru ?: $guvohnoma->ball_ishlab_chiqarish_oz ?: '—' }}</div>
                 </div>
             </div>
         </div>
