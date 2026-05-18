@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DocumentTemplate;
 use BaconQrCode\Common\ErrorCorrectionLevel;
 use BaconQrCode\Encoder\Encoder;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -105,12 +106,23 @@ class DocumentGenerationService
 
         $binary = $this->findLibreOfficeBinary();
         if ($binary === null) {
+            Log::warning('DocxToPdf: LibreOffice binary not found', [
+                'searched' => ['soffice', 'libreoffice', '/usr/bin/soffice', '/usr/bin/libreoffice', '/opt/libreoffice/program/soffice', '/Applications/LibreOffice.app/Contents/MacOS/soffice'],
+            ]);
             return null;
         }
 
+        // Veb-foydalanuvchi (www-data) uchun yoziladigan UNIQUE profil katalogi
+        // — bo'lmasa LibreOffice 'Source file could not be loaded' bilan tushadi.
+        $profileDir = sys_get_temp_dir() . '/lo_profile_' . md5((string) getmyuid());
+        if (!is_dir($profileDir)) {
+            @mkdir($profileDir, 0775, true);
+        }
+
         $cmd = sprintf(
-            '%s --headless --norestore --nolockcheck --nodefault --nofirststartwizard --convert-to pdf --outdir %s %s 2>&1',
+            '%s -env:UserInstallation=file://%s --headless --norestore --nolockcheck --nodefault --nofirststartwizard --convert-to pdf --outdir %s %s 2>&1',
             escapeshellarg($binary),
+            escapeshellarg($profileDir),
             escapeshellarg($outDir),
             escapeshellarg($docxAbsolutePath)
         );
@@ -119,7 +131,17 @@ class DocumentGenerationService
         $exitCode = 0;
         exec($cmd, $output, $exitCode);
 
-        return ($exitCode === 0 && file_exists($pdfPath)) ? $pdfPath : null;
+        if ($exitCode !== 0 || !file_exists($pdfPath)) {
+            Log::warning('DocxToPdf: conversion failed', [
+                'binary'    => $binary,
+                'docx'      => $docxAbsolutePath,
+                'exit_code' => $exitCode,
+                'output'    => implode("\n", $output),
+            ]);
+            return null;
+        }
+
+        return $pdfPath;
     }
 
     private function findLibreOfficeBinary(): ?string
