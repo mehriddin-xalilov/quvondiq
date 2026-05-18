@@ -237,6 +237,10 @@
             transform: scale(.97);
             box-shadow: 0 2px 6px rgba(26,86,219,.3);
         }
+        /* Mobilda yuklab olish tugmasi yashiriladi — telefonga PDF kerak emas. */
+        @media (max-width: 768px) {
+            .btn-download { display: none; }
+        }
 
         /* --- FOOTER --- */
         .footer {
