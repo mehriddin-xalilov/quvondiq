@@ -356,6 +356,7 @@ class GuvohnomaController extends Controller
             'special_uz'              => $g->ball_maxsus_oz,
             'special_ru'              => $g->ball_maxsus_ru ?: $g->ball_maxsus_oz,
             'production_uz'           => $g->ball_ishlab_chiqarish_oz,
+            'production_ru'           => $g->ball_ishlab_chiqarish_ru ?: $g->ball_ishlab_chiqarish_oz,
 
             'start_day'               => $start?->format('d'),
             'start_month_uz'          => $this->monthNameUz($start?->month),
