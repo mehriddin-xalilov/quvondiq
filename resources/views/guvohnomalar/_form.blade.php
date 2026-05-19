@@ -28,7 +28,79 @@
         </div>
     </div>
 
-    <div class="col-span-12 lg:col-span-8 space-y-5">
+    <div class="col-span-12 lg:col-span-8 space-y-5" x-data="guvohnomaSamplePicker()">
+        @unless($g)
+        {{-- "Eski guvohnomadan namuna" tugmasi (faqat yaratishda) --}}
+        <div class="flex justify-end">
+            <button type="button" @click="open()"
+                    class="btn space-x-2 border border-primary text-primary hover:bg-primary/10 dark:border-accent dark:text-accent-light">
+                <i class="fa-solid fa-copy"></i>
+                <span>Eski guvohnomadan namuna olish</span>
+            </button>
+        </div>
+
+        {{-- Modal --}}
+        <template x-teleport="body">
+            <div x-show="visible" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4"
+                 style="background: rgba(15,23,42,.6)" @keydown.escape.window="close()">
+                <div class="card w-full max-w-3xl max-h-[85vh] flex flex-col" @click.outside="close()">
+                    <div class="flex items-center justify-between border-b border-slate-200 p-4 dark:border-navy-500">
+                        <h4 class="font-medium text-slate-700 dark:text-navy-100">Eski guvohnomalar</h4>
+                        <button type="button" @click="close()" class="btn size-8 rounded-full p-0 hover:bg-slate-300/20">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="p-4 border-b border-slate-200 dark:border-navy-500">
+                        <input x-model.debounce.300ms="query" @input="load(1)"
+                               placeholder="Раqам, ФИО, мутахассислик..."
+                               class="form-input w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
+                    </div>
+                    <div class="flex-1 overflow-y-auto">
+                        <template x-if="loading">
+                            <div class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Yuklanmoqda...</div>
+                        </template>
+                        <template x-if="!loading && items.length === 0">
+                            <div class="p-8 text-center text-slate-400">Hech narsa topilmadi</div>
+                        </template>
+                        <table x-show="!loading && items.length > 0" class="w-full text-sm">
+                            <thead class="bg-slate-100 dark:bg-navy-800 text-xs uppercase text-slate-500">
+                                <tr>
+                                    <th class="px-3 py-2 text-left">№</th>
+                                    <th class="px-3 py-2 text-left">Ф.И.О.</th>
+                                    <th class="px-3 py-2 text-left">Мутахассислик</th>
+                                    <th class="px-3 py-2 text-left">Разряд</th>
+                                    <th class="px-3 py-2 text-left">Сана</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="row in items" :key="row.id">
+                                    <tr @click="pick(row.id)" class="cursor-pointer border-t border-slate-200 dark:border-navy-600 hover:bg-primary/5">
+                                        <td class="px-3 py-2 font-mono" x-text="row.raqam"></td>
+                                        <td class="px-3 py-2" x-text="row.fio"></td>
+                                        <td class="px-3 py-2 text-slate-500" x-text="row.mutaxassislik"></td>
+                                        <td class="px-3 py-2" x-text="row.razryad"></td>
+                                        <td class="px-3 py-2 text-slate-500" x-text="row.sana"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div x-show="!loading && meta.last_page > 1" class="flex items-center justify-between border-t border-slate-200 p-3 dark:border-navy-500">
+                        <button type="button" @click="load(meta.current_page - 1)" :disabled="meta.current_page <= 1"
+                                class="btn space-x-1 border border-slate-300 disabled:opacity-50">
+                            <i class="fa-solid fa-chevron-left"></i><span>Oldingi</span>
+                        </button>
+                        <span class="text-xs text-slate-500">Sahifa <span x-text="meta.current_page"></span> / <span x-text="meta.last_page"></span> (<span x-text="meta.total"></span>)</span>
+                        <button type="button" @click="load(meta.current_page + 1)" :disabled="meta.current_page >= meta.last_page"
+                                class="btn space-x-1 border border-slate-300 disabled:opacity-50">
+                            <span>Keyingi</span><i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+        @endunless
+
         {{-- 1. Шаблон & рақам --}}
         <div class="card">
             <div class="border-b border-slate-200 p-4 dark:border-navy-500 sm:px-5">
@@ -198,16 +270,15 @@
                     <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Сана ва протокол</h4>
                 </div>
             </div>
-            <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3 sm:p-5">
+            <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
                 @foreach([
-                    ['boshlanish_sanasi', 'Бошланиш санаси', true],
-                    ['tugash_sanasi', 'Тугаш санаси', true],
-                    ['berilgan_sanasi', 'Берилган санаси', true],
-                ] as [$name, $label, $required])
+                    ['boshlanish_sanasi', 'Бошланиш санаси'],
+                    ['tugash_sanasi', 'Тугаш санаси'],
+                ] as [$name, $label])
                 <label class="block">
-                    <span>{{ $label }} {!! $required ? '<span class="text-error">*</span>' : '' !!}</span>
+                    <span>{{ $label }} <span class="text-error">*</span></span>
                     <span class="relative mt-1.5 flex">
-                        <input name="{{ $name }}" type="text" {{ $required ? 'required' : '' }}
+                        <input name="{{ $name }}" type="text" required
                                value="{{ old($name, $g?->$name?->format('Y-m-d')) }}"
                                x-init="$el._x_flatpickr = flatpickr($el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true })"
                                placeholder="Танланг"
@@ -219,23 +290,10 @@
                 </label>
                 @endforeach
 
-                <label class="block">
-                    <span>Протокол рақами <span class="text-error">*</span></span>
-                    <input name="protokol_raqami" required value="{{ old('protokol_raqami', $g?->protokol_raqami) }}" placeholder="ПИ-98"
-                           class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                </label>
                 <label class="block sm:col-span-2">
-                    <span>Протокол санаси <span class="text-error">*</span></span>
-                    <span class="relative mt-1.5 flex">
-                        <input name="protokol_sanasi" type="text" required
-                               value="{{ old('protokol_sanasi', $g?->protokol_sanasi?->format('Y-m-d')) }}"
-                               x-init="$el._x_flatpickr = flatpickr($el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true })"
-                               placeholder="Танланг"
-                               class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                        <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
-                            <i class="fa-regular fa-calendar"></i>
-                        </span>
-                    </span>
+                    <span>Протокол рақами</span>
+                    <input name="protokol_raqami" value="{{ old('protokol_raqami', $g?->protokol_raqami) }}" placeholder="ПИ-98"
+                           class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
             </div>
         </div>
@@ -350,5 +408,72 @@
         const preSelected = allDistricts.find(d => d.selected);
         if (preSelected) tomDistrict.setValue(preSelected.value);
     });
+
+    // "Eski guvohnomadan namuna olish" — modal + form to'ldirish
+    window.guvohnomaSamplePicker = function () {
+        return {
+            visible: false, loading: false, query: '',
+            items: [], meta: { current_page: 1, last_page: 1, total: 0 },
+
+            open() { this.visible = true; if (this.items.length === 0) this.load(1); },
+            close() { this.visible = false; },
+
+            async load(page) {
+                this.loading = true;
+                try {
+                    const url = new URL("{{ route('guvohnomalar.samples') }}", window.location.origin);
+                    url.searchParams.set('page', page || 1);
+                    if (this.query) url.searchParams.set('q', this.query);
+                    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    const j = await r.json();
+                    this.items = j.data || [];
+                    this.meta = j.meta || this.meta;
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            async pick(id) {
+                this.loading = true;
+                try {
+                    const r = await fetch("{{ url('guvohnomalar') }}/" + id + "/sample-data", { headers: { 'Accept': 'application/json' } });
+                    const data = await r.json();
+                    this.fillForm(data);
+                    this.close();
+                    if (window.$notification) {
+                        $notification({text: 'Namuna ma\'lumotlari to\'ldirildi', variant: 'success', position: 'right-top', duration: 3000});
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            fillForm(data) {
+                Object.entries(data).forEach(([name, value]) => {
+                    const el = document.querySelector(`[name="${name}"]`);
+                    if (!el || value === null) return;
+
+                    // Tom Select (region, district, profession, template)
+                    if (el._x_tom || (el.classList && (el.classList.contains('region-select') || el.classList.contains('district-select')))) {
+                        const tom = el.tomselect || el._x_tom;
+                        if (tom) {
+                            tom.setValue(String(value));
+                            return;
+                        }
+                    }
+                    // Flatpickr (sana)
+                    if (el._x_flatpickr) {
+                        el._x_flatpickr.setDate(value, true);
+                        return;
+                    }
+                    el.value = value;
+                });
+            },
+        };
+    };
 </script>
 @endpush

@@ -60,6 +60,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('sertifikatlar', SertifikatController::class)
             ->parameters(['sertifikatlar' => 'sertifikat']);
 
+        Route::get('guvohnomalar/samples', [GuvohnomaController::class, 'samples'])
+            ->name('guvohnomalar.samples');
+        Route::get('guvohnomalar/{guvohnoma}/sample-data', [GuvohnomaController::class, 'sampleData'])
+            ->name('guvohnomalar.sample-data');
         Route::get('guvohnomalar/{guvohnoma}/download', [GuvohnomaController::class, 'download'])
             ->name('guvohnomalar.download');
         Route::resource('guvohnomalar', GuvohnomaController::class)

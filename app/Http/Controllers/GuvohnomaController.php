@@ -112,6 +112,75 @@ class GuvohnomaController extends Controller
             ->with('success', 'Guvohnoma o\'chirildi.');
     }
 
+    /**
+     * Yangi guvohnoma formasidagi "namuna olish" modalining ro'yxati.
+     * Sahifalangan JSON qaytaradi.
+     */
+    public function samples(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        $paginator = Guvohnoma::query()
+            ->when($q !== '', function ($w) use ($q) {
+                $w->where(function ($s) use ($q) {
+                    $s->where('raqam', 'like', "%{$q}%")
+                      ->orWhere('familiya_ru', 'like', "%{$q}%")
+                      ->orWhere('familiya_oz', 'like', "%{$q}%")
+                      ->orWhere('ism_ru', 'like', "%{$q}%")
+                      ->orWhere('ism_oz', 'like', "%{$q}%")
+                      ->orWhere('mutaxassislik_oz', 'like', "%{$q}%")
+                      ->orWhere('mutaxassislik_ru', 'like', "%{$q}%");
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return response()->json([
+            'data' => $paginator->getCollection()->map(fn (Guvohnoma $g) => [
+                'id'           => $g->id,
+                'raqam'        => $g->raqam,
+                'fio'          => $g->fullNameRu() ?: $g->fullNameOz(),
+                'mutaxassislik'=> $g->mutaxassislik_ru ?: $g->mutaxassislik_oz,
+                'razryad'      => $g->razryad,
+                'sana'         => optional($g->tugash_sanasi)->format('d.m.Y'),
+            ]),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'total'        => $paginator->total(),
+            ],
+        ]);
+    }
+
+    /**
+     * Tanlangan eski guvohnomadan ism/familiya/raqamdan tashqari hamma
+     * maydonni formaga to'ldirish uchun JSON beradi.
+     */
+    public function sampleData(Guvohnoma $guvohnoma)
+    {
+        return response()->json([
+            'region_id'                => $guvohnoma->region_id,
+            'district_id'              => $guvohnoma->district_id,
+            'profession_id'            => $guvohnoma->profession_id,
+            'berilgan_joy_oz'          => $guvohnoma->berilgan_joy_oz,
+            'berilgan_joy_ru'          => $guvohnoma->berilgan_joy_ru,
+            'mutaxassislik_oz'         => $guvohnoma->mutaxassislik_oz,
+            'mutaxassislik_ru'         => $guvohnoma->mutaxassislik_ru,
+            'razryad'                  => $guvohnoma->razryad,
+            'boshlanish_sanasi'        => optional($guvohnoma->boshlanish_sanasi)->format('Y-m-d'),
+            'tugash_sanasi'            => optional($guvohnoma->tugash_sanasi)->format('Y-m-d'),
+            'protokol_raqami'          => $guvohnoma->protokol_raqami,
+            'komissiya_raisi_fio'      => $guvohnoma->komissiya_raisi_fio,
+            'komissiya_azosi_fio'      => $guvohnoma->komissiya_azosi_fio,
+            'direktor_fio'             => $guvohnoma->direktor_fio,
+            'ball_umumiy_oz'           => $guvohnoma->ball_umumiy_oz,
+            'ball_umumiy_ru'           => $guvohnoma->ball_umumiy_ru,
+            'ball_maxsus_oz'           => $guvohnoma->ball_maxsus_oz,
+            'ball_maxsus_ru'           => $guvohnoma->ball_maxsus_ru,
+            'ball_ishlab_chiqarish_oz' => $guvohnoma->ball_ishlab_chiqarish_oz,
+            'ball_ishlab_chiqarish_ru' => $guvohnoma->ball_ishlab_chiqarish_ru,
+        ]);
+    }
+
     public function download(Guvohnoma $guvohnoma)
     {
         abort_unless($guvohnoma->guvohnoma_path, 404);
@@ -205,10 +274,10 @@ class GuvohnomaController extends Controller
 
             'boshlanish_sanasi'       => 'required|date',
             'tugash_sanasi'           => 'required|date|after_or_equal:boshlanish_sanasi',
-            'berilgan_sanasi'         => 'required|date',
+            'berilgan_sanasi'         => 'nullable|date',
 
-            'protokol_raqami'         => 'required|string|max:64',
-            'protokol_sanasi'         => 'required|date',
+            'protokol_raqami'         => 'nullable|string|max:64',
+            'protokol_sanasi'         => 'nullable|date',
 
             'komissiya_raisi_fio'     => 'required|string|max:255',
             'komissiya_azosi_fio'     => 'nullable|string|max:255',
@@ -238,7 +307,8 @@ class GuvohnomaController extends Controller
 
         $start = $g->boshlanish_sanasi;
         $end   = $g->tugash_sanasi;
-        $issued = $g->berilgan_sanasi;
+        // berilgan_sanasi formada yo'q endi — tugash sanasini fallback qilib olamiz
+        $issued = $g->berilgan_sanasi ?: $end;
 
         return [
             // --- Eski (legacy) kalitlar, ilgari yuklangan shablonlar ham ishlasin ---

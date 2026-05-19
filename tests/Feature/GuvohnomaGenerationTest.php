@@ -58,7 +58,7 @@ class GuvohnomaGenerationTest extends TestCase
         $this->assertStringNotContainsString('{{razryad}}', $xml);
     }
 
-    public function test_protokol_required_validation(): void
+    public function test_start_and_end_dates_required(): void
     {
         Storage::fake('local');
         $tpl = $this->seedTemplate('guvohnoma');
@@ -69,13 +69,10 @@ class GuvohnomaGenerationTest extends TestCase
             'raqam'               => '00001',
             'familiya_ru'         => 'X', 'ism_ru' => 'Y',
             'mutaxassislik_oz'    => 'Z',
-            'boshlanish_sanasi'   => '2026-01-01',
-            'tugash_sanasi'       => '2026-02-01',
-            'berilgan_sanasi'     => '2026-02-01',
-            // protokol_raqami va protokol_sanasi yo'q
+            // boshlanish/tugash sanalari yo'q
             'komissiya_raisi_fio' => 'A',
             'direktor_fio'        => 'B',
-        ])->assertSessionHasErrors(['protokol_raqami', 'protokol_sanasi']);
+        ])->assertSessionHasErrors(['boshlanish_sanasi', 'tugash_sanasi']);
     }
 
     public function test_update_regenerates_docx(): void
