@@ -241,7 +241,7 @@
                                 </div>
                             </div>
                             
-                            <input type="file" name="photo" ref="fileInput" class="hidden" accept="image/*" @change="handleFile">
+                            <input type="file" name="photo" x-ref="fileInput" class="hidden" accept="image/*" @change="handleFile">
                             @error('photo')<span class="text-error text-xs mt-1">{{ $message }}</span>@enderror
                         </div>
                     </div>
