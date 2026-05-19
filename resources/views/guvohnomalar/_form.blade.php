@@ -202,8 +202,8 @@
             <div class="p-4 sm:p-5">
                 <div class="flex flex-col gap-5 sm:flex-row">
                     {{-- 3x4 rasm yuklash --}}
-                    <div class="flex flex-col items-center justify-center sm:w-1/3 border-r border-slate-200 dark:border-navy-500 pr-5 sm:border-r sm:border-b-0 pb-5 sm:pb-0">
-                        <span class="text-slate-600 dark:text-navy-100 font-medium text-sm mb-3">Ходим расми (3х4)</span>
+                    <div class="flex flex-col items-center justify-center border-r border-slate-200 dark:border-navy-500 pr-5 pb-5 sm:pb-0" style="width: 160px; flex-shrink: 0;">
+                        <span class="text-slate-600 dark:text-navy-100 font-medium text-xs mb-3 text-center">Ходим расми (3х4)</span>
                         <div x-data="{
                             previewUrl: '{{ $g?->photo_path ? Storage::disk('public')->url($g->photo_path) : '' }}',
                             triggerFileSelect() { this.$refs.fileInput.click() },
@@ -211,7 +211,7 @@
                                 const file = e.target.files[0];
                                 if (!file) return;
                                 if (file.size > 2048 * 1024) {
-                                    alert('Расм ўлчами 2МБ дан ошмаслиги кеrak!');
+                                    alert('Расм ўлчами 2МБ dan ошмаслиги kerak!');
                                     this.$refs.fileInput.value = '';
                                     return;
                                 }
@@ -223,15 +223,16 @@
                             
                             {{-- Clickable Preview Box --}}
                             <div @click="triggerFileSelect()" 
-                                 class="relative flex h-[160px] w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 transition-all hover:border-primary hover:bg-slate-100 dark:border-navy-450 dark:bg-navy-800 dark:hover:border-accent">
+                                 class="relative flex cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 transition-all hover:border-primary hover:bg-slate-100 dark:border-navy-450 dark:bg-navy-800 dark:hover:border-accent"
+                                 style="width: 120px; height: 160px;">
                                 
                                 <template x-if="previewUrl">
-                                    <img :src="previewUrl" class="h-full w-full object-contain">
+                                    <img :src="previewUrl" class="h-full w-full object-contain" style="width: 100%; height: 100%; object-fit: contain;">
                                 </template>
                                 <template x-if="!previewUrl">
                                     <div class="flex flex-col items-center text-center p-2 text-slate-400 dark:text-navy-300">
                                         <i class="fa-solid fa-camera text-2xl mb-1.5 text-slate-400"></i>
-                                        <span class="text-xs font-semibold">Расм юклаш<br>(3х4, max 2MB)</span>
+                                        <span class="text-[10px] font-semibold leading-tight">Расм юklaш<br>(3х4, max 2MB)</span>
                                     </div>
                                 </template>
                                 
@@ -242,7 +243,7 @@
                             </div>
                             
                             <input type="file" name="photo" x-ref="fileInput" class="hidden" accept="image/*" @change="handleFile">
-                            @error('photo')<span class="text-error text-xs mt-1">{{ $message }}</span>@enderror
+                            @error('photo')<span class="text-error text-xs mt-1 text-center">{{ $message }}</span>@enderror
                         </div>
                     </div>
 
