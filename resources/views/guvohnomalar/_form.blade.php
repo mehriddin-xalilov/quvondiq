@@ -226,7 +226,7 @@
                                  class="relative flex h-[160px] w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 transition-all hover:border-primary hover:bg-slate-100 dark:border-navy-450 dark:bg-navy-800 dark:hover:border-accent">
                                 
                                 <template x-if="previewUrl">
-                                    <img :src="previewUrl" class="h-full w-full object-cover">
+                                    <img :src="previewUrl" class="h-full w-full object-contain">
                                 </template>
                                 <template x-if="!previewUrl">
                                     <div class="flex flex-col items-center text-center p-2 text-slate-400 dark:text-navy-300">
