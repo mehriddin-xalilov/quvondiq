@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\District;
 use App\Models\DocumentTemplate;
 use App\Models\Guvohnoma;
 use App\Models\Profession;
-use App\Models\Region;
 use App\Services\DocumentGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -29,8 +27,6 @@ class GuvohnomaController extends Controller
     public function create()
     {
         return view('guvohnomalar.create', [
-            'regions'     => Region::orderBy('name_uz')->get(),
-            'districts'   => District::orderBy('name_uz')->get(),
             'professions' => Profession::orderBy('name_uz')->get(),
             'templates'   => DocumentTemplate::active()
                 ->where('type', DocumentTemplate::TYPE_GUVOHNOMA)
@@ -69,8 +65,6 @@ class GuvohnomaController extends Controller
     {
         return view('guvohnomalar.edit', [
             'guvohnoma'   => $guvohnoma,
-            'regions'     => Region::orderBy('name_uz')->get(),
-            'districts'   => District::orderBy('name_uz')->get(),
             'professions' => Profession::orderBy('name_uz')->get(),
             'templates'   => DocumentTemplate::active()
                 ->where('type', DocumentTemplate::TYPE_GUVOHNOMA)

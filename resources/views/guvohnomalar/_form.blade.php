@@ -40,62 +40,118 @@
         </div>
 
         {{-- Modal --}}
-        <template x-teleport="body">
-            <div x-show="visible" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4"
-                 style="background: rgba(15,23,42,.6)" @keydown.escape.window="close()">
-                <div class="card w-full max-w-3xl max-h-[85vh] flex flex-col" @click.outside="close()">
-                    <div class="flex items-center justify-between border-b border-slate-200 p-4 dark:border-navy-500">
-                        <h4 class="font-medium text-slate-700 dark:text-navy-100">Eski guvohnomalar</h4>
-                        <button type="button" @click="close()" class="btn size-8 rounded-full p-0 hover:bg-slate-300/20">
-                            <i class="fa-solid fa-xmark"></i>
+        <template x-teleport="#x-teleport-target">
+            <div x-show="visible" x-cloak
+                 x-effect="document.body.style.overflow = visible ? 'hidden' : ''"
+                 class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
+                 role="dialog" @keydown.window.escape="close()">
+
+                {{-- Overlay / Backdrop --}}
+                <div class="absolute inset-0 bg-slate-900/60 transition-opacity duration-300"
+                     @click="close()"
+                     x-show="visible"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0">
+                </div>
+
+                {{-- Modal Card --}}
+                <div class="relative flex w-full max-w-xl max-h-[85vh] flex-col overflow-hidden rounded-lg bg-white dark:bg-navy-700 shadow-soft dark:shadow-soft-dark"
+                     x-show="visible"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95">
+
+                    {{-- Header --}}
+                    <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-navy-500 sm:px-5">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-400 dark:text-navy-300"></i>
+                            <h4 class="text-base font-medium text-slate-700 dark:text-navy-100">Eski guvohnomalar</h4>
+                        </div>
+                        <button type="button" @click="close()"
+                                class="btn size-7 rounded-full p-0 text-slate-400 hover:bg-slate-300/20 hover:text-slate-800 focus:bg-slate-300/20 dark:text-navy-300 dark:hover:bg-navy-600 dark:hover:text-navy-100">
+                            <i class="fa-solid fa-xmark text-sm"></i>
                         </button>
                     </div>
-                    <div class="p-4 border-b border-slate-200 dark:border-navy-500">
-                        <input x-model.debounce.300ms="query" @input="load(1)"
-                               placeholder="Раqам, ФИО, мутахассислик..."
-                               class="form-input w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
+
+                    {{-- Search --}}
+                    <div class="px-4 py-3 border-b border-slate-200 dark:border-navy-500">
+                        <label class="relative flex">
+                            <input x-model.debounce.300ms="query" @input="load(1)"
+                                   placeholder="Рақам, ФИО, мутахассислик..."
+                                   class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-9 pr-3 text-sm placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                            <div class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3.316 13.781l.73-.171-.73.171zm0-5.457l.73.171-.73-.171zm15.473 0l.73-.171-.73.171zm0 5.457l.73.171-.73-.171zm-5.008 5.008l-.171-.73.171.73zm-5.457 0l-.171.73.171-.73zm0-15.473l-.171-.73.171.73zm5.457 0l.171-.73-.171.73zM20.47 21.53a.75.75 0 101.06-1.06l-1.06 1.06zM4.046 13.61a11.198 11.198 0 010-5.115l-1.46-.342a12.698 12.698 0 000 5.8l1.46-.343zm14.013-5.115a11.196 11.196 0 010 5.115l1.46.342a12.698 12.698 0 000-5.8l-1.46.343zm-4.45 9.564a11.196 11.196 0 01-5.114 0l-.342 1.46c1.907.448 3.892.448 5.8 0l-.343-1.46zM8.496 4.046a11.198 11.198 0 015.115 0l.342-1.46a12.698 12.698 0 00-5.8 0l.343 1.46zm0 14.013a5.97 5.97 0 01-4.45-4.45l-1.46.343a7.47 7.47 0 005.568 5.568l.342-1.46zm5.457 1.46a7.47 7.47 0 005.568-5.567l-1.46-.342a5.97 5.97 0 01-4.45 4.45l.342 1.46zM13.61 4.046a5.97 5.97 0 014.45 4.45l1.46-.343a7.47 7.47 0 00-5.568-5.567l-.342 1.46zm-5.457-1.46a7.47 7.47 0 00-5.567 5.567l1.46.342a5.97 5.97 0 014.45-4.45l-.343-1.46zm8.652 15.28l3.665 3.664 1.06-1.06-3.665-3.665-1.06 1.06z"></path>
+                                </svg>
+                            </div>
+                        </label>
                     </div>
+
+                    {{-- Body --}}
                     <div class="flex-1 overflow-y-auto">
                         <template x-if="loading">
-                            <div class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Yuklanmoqda...</div>
+                            <div class="flex items-center justify-center p-10 text-slate-400 dark:text-navy-300">
+                                <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                                <span class="text-sm">Yuklanmoqda...</span>
+                            </div>
                         </template>
                         <template x-if="!loading && items.length === 0">
-                            <div class="p-8 text-center text-slate-400">Hech narsa topilmadi</div>
+                            <div class="flex flex-col items-center justify-center p-10 text-slate-400 dark:text-navy-300">
+                                <i class="fa-solid fa-inbox text-3xl mb-2"></i>
+                                <span class="text-sm">Hech narsa topilmadi</span>
+                            </div>
                         </template>
-                        <table x-show="!loading && items.length > 0" class="w-full text-sm">
-                            <thead class="bg-slate-100 dark:bg-navy-800 text-xs uppercase text-slate-500">
+                        <table x-show="!loading && items.length > 0" class="is-hoverable w-full text-left text-sm">
+                            <thead>
                                 <tr>
-                                    <th class="px-3 py-2 text-left">№</th>
-                                    <th class="px-3 py-2 text-left">Ф.И.О.</th>
-                                    <th class="px-3 py-2 text-left">Мутахассислик</th>
-                                    <th class="px-3 py-2 text-left">Разряд</th>
-                                    <th class="px-3 py-2 text-left">Сана</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Рақам</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Ф.И.О.</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Мутахассислик</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Разряд</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Сана</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <template x-for="row in items" :key="row.id">
-                                    <tr @click="pick(row.id)" class="cursor-pointer border-t border-slate-200 dark:border-navy-600 hover:bg-primary/5">
-                                        <td class="px-3 py-2 font-mono" x-text="row.raqam"></td>
-                                        <td class="px-3 py-2" x-text="row.fio"></td>
-                                        <td class="px-3 py-2 text-slate-500" x-text="row.mutaxassislik"></td>
-                                        <td class="px-3 py-2" x-text="row.razryad"></td>
-                                        <td class="px-3 py-2 text-slate-500" x-text="row.sana"></td>
+                                    <tr @click="pick(row.id)"
+                                        class="cursor-pointer border-y border-transparent border-b-slate-200 dark:border-b-navy-500 hover:bg-slate-100 dark:hover:bg-navy-600 transition-colors">
+                                        <td class="px-4 py-2.5 font-mono text-xs text-slate-600 dark:text-navy-200" x-text="row.raqam"></td>
+                                        <td class="px-4 py-2.5 font-medium text-slate-700 dark:text-navy-100" x-text="row.fio"></td>
+                                        <td class="px-4 py-2.5 text-slate-500 dark:text-navy-300 text-xs" x-text="row.mutaxassislik"></td>
+                                        <td class="px-4 py-2.5 text-slate-600 dark:text-navy-200" x-text="row.razryad"></td>
+                                        <td class="px-4 py-2.5 text-slate-500 dark:text-navy-300 text-xs" x-text="row.sana"></td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
                     </div>
-                    <div x-show="!loading && meta.last_page > 1" class="flex items-center justify-between border-t border-slate-200 p-3 dark:border-navy-500">
+
+                    {{-- Pagination Footer --}}
+                    <div x-show="!loading && meta.last_page > 1"
+                         class="flex items-center justify-between border-t border-slate-200 px-4 py-2.5 dark:border-navy-500">
                         <button type="button" @click="load(meta.current_page - 1)" :disabled="meta.current_page <= 1"
-                                class="btn space-x-1 border border-slate-300 disabled:opacity-50">
-                            <i class="fa-solid fa-chevron-left"></i><span>Oldingi</span>
+                                class="btn space-x-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-150 disabled:opacity-40 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-500">
+                            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                            <span>Oldingi</span>
                         </button>
-                        <span class="text-xs text-slate-500">Sahifa <span x-text="meta.current_page"></span> / <span x-text="meta.last_page"></span> (<span x-text="meta.total"></span>)</span>
+                        <span class="text-xs text-slate-400 dark:text-navy-300">
+                            <span x-text="meta.current_page"></span> / <span x-text="meta.last_page"></span>
+                            &nbsp;·&nbsp; jami <span x-text="meta.total"></span>
+                        </span>
                         <button type="button" @click="load(meta.current_page + 1)" :disabled="meta.current_page >= meta.last_page"
-                                class="btn space-x-1 border border-slate-300 disabled:opacity-50">
-                            <span>Keyingi</span><i class="fa-solid fa-chevron-right"></i>
+                                class="btn space-x-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-150 disabled:opacity-40 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-500">
+                            <span>Keyingi</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
                         </button>
                     </div>
+
                 </div>
             </div>
         </template>
@@ -182,25 +238,6 @@
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
-                <label class="block">
-                    <span>Вилоят</span>
-                    <select name="region_id" class="region-select mt-1.5 w-full">
-                        <option value=""></option>
-                        @foreach($regions as $r)
-                            <option value="{{ $r->id }}" @selected(old('region_id', $g?->region_id) == $r->id)>{{ $r->name_uz }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label class="block">
-                    <span>Туман</span>
-                    <select name="district_id" class="district-select mt-1.5 w-full">
-                        <option value=""></option>
-                        @foreach($districts as $d)
-                            <option value="{{ $d->id }}" data-region="{{ $d->region_id }}"
-                                    @selected(old('district_id', $g?->district_id) == $d->id)>{{ $d->name_uz }}</option>
-                        @endforeach
-                    </select>
-                </label>
                 <label class="block">
                     <span>Берилган жой (Кирилл)</span>
                     <input name="berilgan_joy_oz" value="{{ old('berilgan_joy_oz', $g?->berilgan_joy_oz) }}" placeholder="Қарши"
@@ -375,40 +412,6 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const regionEl = document.querySelector('.region-select');
-        const districtEl = document.querySelector('.district-select');
-
-        const allDistricts = Array.from(districtEl.options).map(o => ({
-            value: o.value, text: o.text, region: o.dataset.region, selected: o.selected
-        })).filter(o => o.value);
-
-        const tomDistrict = new Tom(districtEl, { placeholder: '— Туман —', allowEmptyOption: true });
-        const tomRegion = new Tom(regionEl, {
-            placeholder: '— Вилоят —',
-            allowEmptyOption: true,
-            onChange(value) { filterDistricts(value); }
-        });
-
-        function filterDistricts(regionId) {
-            const current = tomDistrict.getValue();
-            tomDistrict.clear();
-            tomDistrict.clearOptions();
-            tomDistrict.addOption({ value: '', text: '— Туман —' });
-            allDistricts
-                .filter(d => !regionId || d.region === String(regionId))
-                .forEach(d => tomDistrict.addOption({ value: d.value, text: d.text }));
-            tomDistrict.refreshOptions(false);
-            if (current && allDistricts.find(d => d.value === current && (!regionId || d.region === String(regionId)))) {
-                tomDistrict.setValue(current);
-            }
-        }
-
-        filterDistricts(tomRegion.getValue());
-        const preSelected = allDistricts.find(d => d.selected);
-        if (preSelected) tomDistrict.setValue(preSelected.value);
-    });
-
     // "Eski guvohnomadan namuna olish" — modal + form to'ldirish
     window.guvohnomaSamplePicker = function () {
         return {
@@ -457,8 +460,8 @@
                     const el = document.querySelector(`[name="${name}"]`);
                     if (!el || value === null) return;
 
-                    // Tom Select (region, district, profession, template)
-                    if (el._x_tom || (el.classList && (el.classList.contains('region-select') || el.classList.contains('district-select')))) {
+                    // Tom Select (profession, template)
+                    if (el._x_tom) {
                         const tom = el.tomselect || el._x_tom;
                         if (tom) {
                             tom.setValue(String(value));
