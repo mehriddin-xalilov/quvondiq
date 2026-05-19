@@ -42,8 +42,16 @@ class GuvohnomaController extends Controller
         $template = DocumentTemplate::findOrFail($data['template_id']);
         unset($data['template_id']);
 
+        $photo = $request->file('photo');
+        $photoPath = null;
+        if ($photo) {
+            $photoPath = $photo->store('guvohnomalar/photos', 'public');
+        }
+        unset($data['photo']);
+
         $guvohnoma = Guvohnoma::create([
             ...$data,
+            'photo_path' => $photoPath,
             'created_by' => auth()->id(),
         ]);
 
@@ -79,6 +87,14 @@ class GuvohnomaController extends Controller
 
         $template = DocumentTemplate::findOrFail($data['template_id']);
         unset($data['template_id']);
+
+        if ($request->hasFile('photo')) {
+            if ($guvohnoma->photo_path) {
+                Storage::disk('public')->delete($guvohnoma->photo_path);
+            }
+            $data['photo_path'] = $request->file('photo')->store('guvohnomalar/photos', 'public');
+        }
+        unset($data['photo']);
 
         if ($guvohnoma->guvohnoma_path) {
             Storage::disk('local')->delete($guvohnoma->guvohnoma_path);
@@ -223,11 +239,17 @@ class GuvohnomaController extends Controller
      */
     private function generateForGuvohnoma(DocumentTemplate $template, Guvohnoma $guvohnoma): string
     {
+        $photoAbsPath = null;
+        if ($guvohnoma->photo_path) {
+            $photoAbsPath = Storage::disk('public')->path($guvohnoma->photo_path);
+        }
+
         $docxRel = $this->generator->generate(
             $template,
             $this->buildPlaceholderMap($guvohnoma),
             'generated/guvohnomalar',
-            $guvohnoma->verifyUrl()
+            $guvohnoma->verifyUrl(),
+            $photoAbsPath
         );
 
         if (app()->environment('testing')) {
@@ -283,6 +305,7 @@ class GuvohnomaController extends Controller
             'ball_maxsus_ru'          => 'nullable|string|max:64',
             'ball_ishlab_chiqarish_oz'=> 'nullable|string|max:64',
             'ball_ishlab_chiqarish_ru'=> 'nullable|string|max:64',
+            'photo'                   => 'nullable|image|max:2048',
         ]);
 
         // FIO bitta marta kiritiladi (Кирилл); _oz ustunlariga ham aynan shu qiymat

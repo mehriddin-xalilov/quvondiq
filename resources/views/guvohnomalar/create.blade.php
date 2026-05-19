@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="mt-4">
-    <form action="{{ route('guvohnomalar.store') }}" method="POST">
+    <form action="{{ route('guvohnomalar.store') }}" method="POST" enctype="multipart/form-data">
         @include('guvohnomalar._form')
     </form>
 </div>

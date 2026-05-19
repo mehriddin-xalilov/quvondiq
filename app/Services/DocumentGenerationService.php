@@ -23,7 +23,8 @@ class DocumentGenerationService
         DocumentTemplate $template,
         array $data,
         string $outputSubdir,
-        ?string $qrUrl = null
+        ?string $qrUrl = null,
+        ?string $photoAbsolutePath = null
     ): string {
         $templateFullPath = Storage::disk('local')->path($template->file_path);
         if (!file_exists($templateFullPath)) {
@@ -47,7 +48,7 @@ class DocumentGenerationService
         $qrPngPath = $qrUrl !== null ? $this->renderQrPng($qrUrl) : null;
 
         try {
-            $this->processDocx($fullOutputPath, $data, $qrPngPath);
+            $this->processDocx($fullOutputPath, $data, $qrPngPath, $photoAbsolutePath);
         } finally {
             if ($qrPngPath !== null && file_exists($qrPngPath)) {
                 @unlink($qrPngPath);
@@ -165,7 +166,7 @@ class DocumentGenerationService
         return null;
     }
 
-    private function processDocx(string $docxPath, array $data, ?string $qrPngPath): void
+    private function processDocx(string $docxPath, array $data, ?string $qrPngPath, ?string $photoAbsolutePath = null): void
     {
         $zip = new ZipArchive();
         if ($zip->open($docxPath) !== true) {
@@ -181,7 +182,7 @@ class DocumentGenerationService
         }
 
         $imageRelIds = [];
-        $imageMediaName = 'qr_image.png';
+        $hasPhoto = ($photoAbsolutePath !== null && file_exists($photoAbsolutePath));
         $nextRelId = $this->nextFreeRelationshipId($zip, 'word/_rels/document.xml.rels');
 
         foreach ($parts as $partName) {
@@ -194,12 +195,24 @@ class DocumentGenerationService
 
             if ($qrPngPath !== null && str_contains($xml, '{{code}}')) {
                 $rid = 'rId' . $nextRelId;
-                $imageRelIds[$partName] = $rid;
+                $imageRelIds[$partName][] = ['rid' => $rid, 'type' => 'qr'];
                 $nextRelId++;
 
                 $xml = str_replace(
                     '{{code}}',
                     $this->buildImageXml($rid),
+                    $xml
+                );
+            }
+
+            if ($hasPhoto && str_contains($xml, '{{photo}}')) {
+                $rid = 'rId' . $nextRelId;
+                $imageRelIds[$partName][] = ['rid' => $rid, 'type' => 'photo'];
+                $nextRelId++;
+
+                $xml = str_replace(
+                    '{{photo}}',
+                    $this->buildPhotoXml($rid),
                     $xml
                 );
             }
@@ -210,27 +223,116 @@ class DocumentGenerationService
             $zip->addFromString($partName, $xml);
         }
 
-        if (!empty($imageRelIds) && $qrPngPath !== null) {
-            $imagePath = 'word/media/' . $imageMediaName;
-            $zip->deleteName($imagePath);
-            $zip->addFromString($imagePath, file_get_contents($qrPngPath));
+        if ($qrPngPath !== null) {
+            $zip->deleteName('word/media/qr_image.png');
+            $zip->addFromString('word/media/qr_image.png', file_get_contents($qrPngPath));
+            $this->ensureImageContentTypes($zip, 'png');
+        }
 
-            $this->ensurePngContentType($zip);
+        if ($hasPhoto) {
+            $photoExt = strtolower(pathinfo($photoAbsolutePath, PATHINFO_EXTENSION)) ?: 'png';
+            if ($photoExt === 'jpg') {
+                $photoExt = 'jpeg';
+            }
+            $photoMediaName = 'photo_image.' . $photoExt;
+            $zip->deleteName('word/media/' . $photoMediaName);
+            $zip->addFromString('word/media/' . $photoMediaName, file_get_contents($photoAbsolutePath));
+            $this->ensureImageContentTypes($zip, $photoExt);
+        }
 
-            foreach ($imageRelIds as $partName => $rid) {
+        if (!empty($imageRelIds)) {
+            foreach ($imageRelIds as $partName => $images) {
                 $relsName = $this->relsNameFor($partName);
                 $relsXml = $zip->getFromName($relsName);
-                $relsXml = $this->addImageRelationship(
-                    $relsXml === false ? null : $relsXml,
-                    $rid,
-                    'media/' . $imageMediaName
-                );
+                if ($relsXml === false) {
+                    $relsXml = null;
+                }
+                foreach ($images as $img) {
+                    if ($img['type'] === 'qr') {
+                        $relsXml = $this->addImageRelationship($relsXml, $img['rid'], 'media/qr_image.png');
+                    } elseif ($img['type'] === 'photo') {
+                        $photoExt = strtolower(pathinfo($photoAbsolutePath, PATHINFO_EXTENSION)) ?: 'png';
+                        if ($photoExt === 'jpg') {
+                            $photoExt = 'jpeg';
+                        }
+                        $relsXml = $this->addImageRelationship($relsXml, $img['rid'], 'media/photo_image.' . $photoExt);
+                    }
+                }
                 $zip->deleteName($relsName);
                 $zip->addFromString($relsName, $relsXml);
             }
         }
 
         $zip->close();
+    }
+
+    /**
+     * `{{photo}}` o'rniga qo'yiladigan DrawingML rasm XML'ini quradi.
+     * 3cm (1080000 EMU) x 4cm (1440000 EMU) inline rasm.
+     */
+    private function buildPhotoXml(string $rid): string
+    {
+        $cx = 1080000;
+        $cy = 1440000;
+        $id = abs(crc32($rid)) % 1000000 + 200;
+
+        return ''
+            . '</w:t></w:r>'
+            . '<w:r>'
+            .   '<w:rPr><w:noProof/></w:rPr>'
+            .   '<w:drawing>'
+            .     '<wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">'
+            .       '<wp:extent cx="' . $cx . '" cy="' . $cy . '"/>'
+            .       '<wp:effectExtent l="0" t="0" r="0" b="0"/>'
+            .       '<wp:docPr id="' . $id . '" name="Student Photo"/>'
+            .       '<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>'
+            .       '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+            .         '<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+            .           '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+            .             '<pic:nvPicPr>'
+            .               '<pic:cNvPr id="' . $id . '" name="Student Photo"/>'
+            .               '<pic:cNvPicPr><a:picLocks noChangeAspect="1" noChangeArrowheads="1"/></pic:cNvPicPr>'
+            .             '</pic:nvPicPr>'
+            .             '<pic:blipFill>'
+            .               '<a:blip r:embed="' . $rid . '" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>'
+            .               '<a:srcRect/>'
+            .               '<a:stretch><a:fillRect/></a:stretch>'
+            .             '</pic:blipFill>'
+            .             '<pic:spPr bwMode="auto">'
+            .               '<a:xfrm><a:off x="0" y="0"/><a:ext cx="' . $cx . '" cy="' . $cy . '"/></a:xfrm>'
+            .               '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+            .             '</pic:spPr>'
+            .           '</pic:pic>'
+            .         '</a:graphicData>'
+            .       '</a:graphic>'
+            .     '</wp:inline>'
+            .   '</w:drawing>'
+            . '</w:r>'
+            . '<w:r><w:t>';
+    }
+
+    private function ensureImageContentTypes(ZipArchive $zip, string $ext): void
+    {
+        $name = '[Content_Types].xml';
+        $xml = $zip->getFromName($name);
+        if ($xml === false) {
+            return;
+        }
+        $modified = false;
+        if ($ext === 'png' && !str_contains($xml, 'Extension="png"')) {
+            $insert = '<Default Extension="png" ContentType="image/png"/>';
+            $xml = preg_replace('#<Types[^>]*>#', '$0' . $insert, $xml, 1);
+            $modified = true;
+        }
+        if (($ext === 'jpg' || $ext === 'jpeg') && !str_contains($xml, 'Extension="jpeg"') && !str_contains($xml, 'Extension="jpg"')) {
+            $insert = '<Default Extension="jpeg" ContentType="image/jpeg"/>';
+            $xml = preg_replace('#<Types[^>]*>#', '$0' . $insert, $xml, 1);
+            $modified = true;
+        }
+        if ($modified) {
+            $zip->deleteName($name);
+            $zip->addFromString($name, $xml);
+        }
     }
 
     /**
@@ -352,21 +454,7 @@ class DocumentGenerationService
         return preg_replace('#</Relationships>\s*$#', $relTag . '</Relationships>', $relsXml);
     }
 
-    private function ensurePngContentType(ZipArchive $zip): void
-    {
-        $name = '[Content_Types].xml';
-        $xml = $zip->getFromName($name);
-        if ($xml === false) {
-            return;
-        }
-        if (str_contains($xml, 'Extension="png"')) {
-            return;
-        }
-        $insert = '<Default Extension="png" ContentType="image/png"/>';
-        $xml = preg_replace('#<Types[^>]*>#', '$0' . $insert, $xml, 1);
-        $zip->deleteName($name);
-        $zip->addFromString($name, $xml);
-    }
+
 
     /**
      * QR kodni GD orqali PNG faylga chizadi (Imagick talab qilmaydi).

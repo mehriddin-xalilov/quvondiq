@@ -199,30 +199,80 @@
                     <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Ходим Ф.И.О.</h4>
                 </div>
             </div>
-            <div class="space-y-5 p-4 sm:p-5">
-                <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">Кирилл алифбосида киритинг</p>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <label class="block">
-                        <span>Фамилия <span class="text-error">*</span></span>
-                        <input name="familiya_ru" required
-                               value="{{ old('familiya_ru', $g?->familiya_ru ?? $g?->familiya_oz) }}"
-                               placeholder="Иванов"
-                               class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                    </label>
-                    <label class="block">
-                        <span>Исм <span class="text-error">*</span></span>
-                        <input name="ism_ru" required
-                               value="{{ old('ism_ru', $g?->ism_ru ?? $g?->ism_oz) }}"
-                               placeholder="Иван"
-                               class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                    </label>
-                    <label class="block">
-                        <span>Отасининг исми</span>
-                        <input name="otasi_ismi_ru"
-                               value="{{ old('otasi_ismi_ru', $g?->otasi_ismi_ru ?? $g?->otasi_ismi_oz) }}"
-                               placeholder="Петрович"
-                               class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
-                    </label>
+            <div class="p-4 sm:p-5">
+                <div class="flex flex-col gap-5 sm:flex-row">
+                    {{-- 3x4 rasm yuklash --}}
+                    <div class="flex flex-col items-center justify-center sm:w-1/3 border-r border-slate-200 dark:border-navy-500 pr-5 sm:border-r sm:border-b-0 pb-5 sm:pb-0">
+                        <span class="text-slate-600 dark:text-navy-100 font-medium text-sm mb-3">Ходим расми (3х4)</span>
+                        <div x-data="{
+                            previewUrl: '{{ $g?->photo_path ? Storage::disk('public')->url($g->photo_path) : '' }}',
+                            triggerFileSelect() { this.$refs.fileInput.click() },
+                            handleFile(e) {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                if (file.size > 2048 * 1024) {
+                                    alert('Расм ўлчами 2МБ дан ошмаслиги кеrak!');
+                                    this.$refs.fileInput.value = '';
+                                    return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = (event) => { this.previewUrl = event.target.result; };
+                                reader.readAsDataURL(file);
+                            }
+                        }" class="flex flex-col items-center">
+                            
+                            {{-- Clickable Preview Box --}}
+                            <div @click="triggerFileSelect()" 
+                                 class="relative flex h-[160px] w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 transition-all hover:border-primary hover:bg-slate-100 dark:border-navy-450 dark:bg-navy-800 dark:hover:border-accent">
+                                
+                                <template x-if="previewUrl">
+                                    <img :src="previewUrl" class="h-full w-full object-cover">
+                                </template>
+                                <template x-if="!previewUrl">
+                                    <div class="flex flex-col items-center text-center p-2 text-slate-400 dark:text-navy-300">
+                                        <i class="fa-solid fa-camera text-2xl mb-1.5 text-slate-400"></i>
+                                        <span class="text-xs font-semibold">Расм юклаш<br>(3х4, max 2MB)</span>
+                                    </div>
+                                </template>
+                                
+                                {{-- Hover Overlay --}}
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity hover:opacity-100">
+                                    <i class="fa-solid fa-pencil text-white text-lg"></i>
+                                </div>
+                            </div>
+                            
+                            <input type="file" name="photo" ref="fileInput" class="hidden" accept="image/*" @change="handleFile">
+                            @error('photo')<span class="text-error text-xs mt-1">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+
+                    {{-- FIO Inputs --}}
+                    <div class="flex-1 space-y-4">
+                        <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">Кирилл алифбосида киритинг</p>
+                        <div class="space-y-4">
+                            <label class="block">
+                                <span>Фамилия <span class="text-error">*</span></span>
+                                <input name="familiya_ru" required
+                                       value="{{ old('familiya_ru', $g?->familiya_ru ?? $g?->familiya_oz) }}"
+                                       placeholder="Иванов"
+                                       class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                            </label>
+                            <label class="block">
+                                <span>Исм <span class="text-error">*</span></span>
+                                <input name="ism_ru" required
+                                       value="{{ old('ism_ru', $g?->ism_ru ?? $g?->ism_oz) }}"
+                                       placeholder="Иван"
+                                       class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                            </label>
+                            <label class="block">
+                                <span>Отасининг исми</span>
+                                <input name="otasi_ismi_ru"
+                                       value="{{ old('otasi_ismi_ru', $g?->otasi_ismi_ru ?? $g?->otasi_ismi_oz) }}"
+                                       placeholder="Петрович"
+                                       class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
