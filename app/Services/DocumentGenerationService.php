@@ -394,8 +394,8 @@ class DocumentGenerationService
      */
     private function buildImageXml(string $rid): string
     {
-        $cx = 1080000;
-        $cy = 1080000;
+        $cx = 720000;  // 2 sm
+        $cy = 720000;  // 2 sm
         $id = abs(crc32($rid)) % 1000000 + 100;
 
         return ''
@@ -472,7 +472,7 @@ class DocumentGenerationService
     /**
      * QR kodni GD orqali PNG faylga chizadi (Imagick talab qilmaydi).
      */
-    private function renderQrPng(string $content, int $cellSize = 12, int $marginCells = 2): string
+    private function renderQrPng(string $content, int $cellSize = 8, int $marginCells = 1): string
     {
         if (!function_exists('imagecreatetruecolor')) {
             throw new RuntimeException('PHP GD kengaytmasi yo\'q — QR kod chiza olmadi.');
