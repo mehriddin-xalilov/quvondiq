@@ -35,16 +35,14 @@ class SertifikatGenerationTest extends TestCase
     public function test_can_create_sertifikat_and_generate_docx(): void
     {
         Storage::fake('local');
-        $tpl = $this->seedTemplate('certificate', '{{seria}}{{raqam}} {{familiya_uz}} {{ism_uz}} {{kasb_uz}} {{boshlanish_sanasi}}');
+        $tpl = $this->seedTemplate('certificate', '{{seria}}{{raqam}} {{fio_uz}} {{kasb_uz}} {{boshlanish_sanasi}}');
         $this->actingAsAdmin();
 
         $payload = [
             'template_id'         => $tpl->id,
             'seria'               => 'QV',
             'raqam'               => '012880',
-            'familiya_uz'         => 'TAYMURODOV',
-            'ism_uz'              => 'QUVONDIQ',
-            'otasi_ismi_uz'       => "MUROD O'G'LI",
+            'fio_uz'              => "TAYMURODOV QUVONDIQ MUROD O'G'LI",
             'kasb_uz'             => 'Elektrogazpayvandchi',
             'boshlanish_sanasi'   => '2026-02-10',
             'tugash_sanasi'       => '2026-05-05',
@@ -56,9 +54,9 @@ class SertifikatGenerationTest extends TestCase
         $response->assertRedirect();
 
         $this->assertDatabaseHas('sertifikatlar', [
-            'raqam'       => '012880',
-            'familiya_uz' => 'TAYMURODOV',
-            'soat'        => 360,
+            'raqam'  => '012880',
+            'fio_uz' => "TAYMURODOV QUVONDIQ MUROD O'G'LI",
+            'soat'   => 360,
         ]);
 
         $sert = Sertifikat::first();
@@ -81,7 +79,7 @@ class SertifikatGenerationTest extends TestCase
 
         Sertifikat::create([
             'raqam'             => '012880',
-            'familiya_uz'       => 'A', 'ism_uz' => 'B',
+            'fio_uz'            => 'A B',
             'kasb_uz'           => 'C',
             'boshlanish_sanasi' => '2026-01-01', 'tugash_sanasi' => '2026-02-01',
             'soat'              => 100, 'direktor_fio' => 'D',
@@ -90,7 +88,7 @@ class SertifikatGenerationTest extends TestCase
         $this->post(route('sertifikatlar.store'), [
             'template_id'       => $tpl->id,
             'raqam'             => '012880', // takror
-            'familiya_uz'       => 'X', 'ism_uz' => 'Y', 'kasb_uz' => 'Z',
+            'fio_uz'            => 'X Y', 'kasb_uz' => 'Z',
             'boshlanish_sanasi' => '2026-01-01', 'tugash_sanasi' => '2026-02-01',
             'soat'              => 200, 'direktor_fio' => 'W',
         ])->assertSessionHasErrors('raqam');
@@ -105,7 +103,7 @@ class SertifikatGenerationTest extends TestCase
         $this->post(route('sertifikatlar.store'), [
             'template_id'       => $tpl->id,
             'raqam'             => '999999',
-            'familiya_uz'       => 'A', 'ism_uz' => 'B', 'kasb_uz' => 'C',
+            'fio_uz'            => 'A B C', 'kasb_uz' => 'C',
             'boshlanish_sanasi' => '2026-01-01', 'tugash_sanasi' => '2026-02-01',
             'soat'              => 100, 'direktor_fio' => 'D',
         ]);
@@ -125,7 +123,7 @@ class SertifikatGenerationTest extends TestCase
         $this->post(route('sertifikatlar.store'), [
             'template_id'       => $tpl->id,
             'raqam'             => '111111',
-            'familiya_uz'       => 'A', 'ism_uz' => 'B', 'kasb_uz' => 'C',
+            'fio_uz'            => 'A B C', 'kasb_uz' => 'C',
             'boshlanish_sanasi' => '2026-01-01', 'tugash_sanasi' => '2026-02-01',
             'soat'              => 100, 'direktor_fio' => 'D',
         ]);
@@ -133,6 +131,33 @@ class SertifikatGenerationTest extends TestCase
         $sert = Sertifikat::first();
         $this->delete(route('sertifikatlar.destroy', $sert))->assertRedirect();
         $this->assertSoftDeleted('sertifikatlar', ['id' => $sert->id]);
+    }
+
+    public function test_can_get_sertifikat_samples_and_data(): void
+    {
+        Storage::fake('local');
+        $tpl = $this->seedTemplate('certificate');
+        $this->actingAsAdmin();
+
+        $sert = Sertifikat::create([
+            'template_id'       => $tpl->id,
+            'raqam'             => '222222',
+            'fio_uz'            => 'A B', 'kasb_uz' => 'Elektrogazpayvandchi',
+            'boshlanish_sanasi' => '2026-01-01', 'tugash_sanasi' => '2026-02-01',
+            'soat'              => 100, 'direktor_fio' => 'D',
+        ]);
+
+        // 1. samples endpoint
+        $response = $this->getJson(route('sertifikatlar.samples', ['q' => 'Elektro']));
+        $response->assertOk()
+            ->assertJsonStructure(['data', 'meta'])
+            ->assertJsonFragment(['raqam' => '222222']);
+
+        // 2. sampleData endpoint
+        $response2 = $this->getJson(route('sertifikatlar.sample-data', $sert));
+        $response2->assertOk()
+            ->assertJsonFragment(['kasb_uz' => 'Elektrogazpayvandchi'])
+            ->assertJsonFragment(['fio_uz' => 'A B']);
     }
 
     private function seedTemplate(string $type, string $body = '{{raqam}}'): DocumentTemplate

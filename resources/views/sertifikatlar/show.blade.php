@@ -4,12 +4,21 @@
 @section('page-title', 'Sertifikat ma\'lumotlari')
 
 @section('content')
+@php
+    $ext = $sertifikat->certificate_path
+        ? strtolower(pathinfo($sertifikat->certificate_path, PATHINFO_EXTENSION))
+        : null;
+    $isPdf = $ext === 'pdf';
+@endphp
+
 <div class="flex items-center justify-between mt-4">
     <a href="{{ route('sertifikatlar.index') }}" class="text-primary text-sm hover:underline">← Ro'yxatga qaytish</a>
     <div class="space-x-2">
         @if($sertifikat->certificate_path)
-        <a href="{{ route('sertifikatlar.download', $sertifikat) }}" class="btn bg-success text-white hover:bg-success-focus">
-            <i class="fa-solid fa-download mr-2"></i> .docx Yuklab olish
+        <a href="{{ route('sertifikatlar.download', $sertifikat) }}"
+           class="btn {{ $isPdf ? 'bg-success' : 'bg-slate-500' }} text-white hover:opacity-90">
+            <i class="fa-solid {{ $isPdf ? 'fa-file-pdf' : 'fa-file-word' }} mr-2"></i>
+            {{ $isPdf ? 'PDF Yuklab olish' : '.docx Yuklab olish' }}
         </a>
         @endif
         <a href="{{ route('sertifikatlar.edit', $sertifikat) }}" class="btn bg-warning text-white">
@@ -26,9 +35,7 @@
     <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
         <div>
             <p class="text-xs+ uppercase text-slate-400 mb-2">F.I.O.</p>
-            <p><strong>UZ:</strong> {{ $sertifikat->familiya_uz }} {{ $sertifikat->ism_uz }} {{ $sertifikat->otasi_ismi_uz }}</p>
-            @if($sertifikat->familiya_en)<p><strong>EN:</strong> {{ $sertifikat->familiya_en }} {{ $sertifikat->ism_en }} {{ $sertifikat->otasi_ismi_en }}</p>@endif
-            @if($sertifikat->familiya_ru)<p><strong>RU:</strong> {{ $sertifikat->familiya_ru }} {{ $sertifikat->ism_ru }} {{ $sertifikat->otasi_ismi_ru }}</p>@endif
+            <p>{{ $sertifikat->fio_uz }}</p>
         </div>
 
         <div>
@@ -64,6 +71,11 @@
     <div class="mt-5 p-3 rounded bg-error/10 text-error text-sm">
         <i class="fa-solid fa-triangle-exclamation"></i>
         Hujjat hali generatsiya qilinmagan. Tahrirlab qayta saqlang.
+    </div>
+    @elseif(!$isPdf)
+    <div class="mt-5 p-3 rounded bg-warning/10 text-warning text-sm">
+        <i class="fa-solid fa-circle-info"></i>
+        Hujjat .docx formatida. PDF olish uchun — <a href="{{ route('sertifikatlar.edit', $sertifikat) }}" class="underline font-medium">Tahrirlab qayta saqlang</a>.
     </div>
     @endif
 </div>

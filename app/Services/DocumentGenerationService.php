@@ -147,17 +147,30 @@ class DocumentGenerationService
 
     private function findLibreOfficeBinary(): ?string
     {
+        // Mac-specific paths first
+        $macPaths = [
+            '/Applications/LibreOffice.app/Contents/MacOS/soffice',
+            '/Applications/LibreOfficeDev.app/Contents/MacOS/soffice',
+        ];
+        foreach ($macPaths as $path) {
+            if (is_executable($path)) {
+                return $path;
+            }
+        }
+
+        // Unix PATH lookup
         foreach (['soffice', 'libreoffice'] as $name) {
             $path = trim((string) @shell_exec('command -v ' . escapeshellarg($name) . ' 2>/dev/null'));
             if ($path !== '' && is_executable($path)) {
                 return $path;
             }
         }
+
+        // Common Linux/Unix fixed paths
         foreach ([
             '/usr/bin/soffice',
             '/usr/bin/libreoffice',
             '/opt/libreoffice/program/soffice',
-            '/Applications/LibreOffice.app/Contents/MacOS/soffice',
         ] as $path) {
             if (is_executable($path)) {
                 return $path;

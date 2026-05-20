@@ -51,16 +51,12 @@ class SertifikatController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        $sertifikat->certificate_path = $this->generator->generate(
-            $template,
-            $this->buildPlaceholderMap($sertifikat),
-            'generated/sertifikatlar'
-        );
+        $sertifikat->certificate_path = $this->generateForSertifikat($template, $sertifikat);
         $sertifikat->save();
 
         return redirect()
             ->route('sertifikatlar.show', $sertifikat)
-            ->with('success', 'Sertifikat yaratildi va docx tayyor.');
+            ->with('success', 'Sertifikat yaratildi va tayyor.');
     }
 
     public function show(Sertifikat $sertifikat)
@@ -96,16 +92,12 @@ class SertifikatController extends Controller
 
         $sertifikat->update($data);
 
-        $sertifikat->certificate_path = $this->generator->generate(
-            $template,
-            $this->buildPlaceholderMap($sertifikat),
-            'generated/sertifikatlar'
-        );
+        $sertifikat->certificate_path = $this->generateForSertifikat($template, $sertifikat);
         $sertifikat->save();
 
         return redirect()
             ->route('sertifikatlar.show', $sertifikat)
-            ->with('success', 'Sertifikat yangilandi va docx qayta yaratildi.');
+            ->with('success', 'Sertifikat yangilandi va qayta yaratildi.');
     }
 
     public function destroy(Sertifikat $sertifikat)
@@ -124,10 +116,42 @@ class SertifikatController extends Controller
     {
         abort_unless($sertifikat->certificate_path, 404);
 
+        $abs = Storage::disk('local')->path($sertifikat->certificate_path);
+        if (!file_exists($abs)) {
+            return back()->with('error', 'Fayl topilmadi.');
+        }
+
+        $ext = pathinfo($abs, PATHINFO_EXTENSION) ?: 'pdf';
+
         return Storage::disk('local')->download(
             $sertifikat->certificate_path,
-            sprintf('Sertifikat_%s.docx', $sertifikat->raqam)
+            sprintf('Sertifikat_%s.%s', $sertifikat->raqam, $ext)
         );
+    }
+
+    private function generateForSertifikat(DocumentTemplate $template, Sertifikat $sertifikat): string
+    {
+        $docxRel = $this->generator->generate(
+            $template,
+            $this->buildPlaceholderMap($sertifikat),
+            'generated/sertifikatlar',
+            $sertifikat->verifyUrl()   // ← QR code uchun URL
+        );
+
+        if (app()->environment('testing')) {
+            return $docxRel;
+        }
+
+        $docxAbs = Storage::disk('local')->path($docxRel);
+        $pdfAbs  = $this->generator->convertDocxToPdf($docxAbs);
+
+        if ($pdfAbs === null) {
+            return $docxRel;
+        }
+
+        @unlink($docxAbs);
+        $localRoot = Storage::disk('local')->path('');
+        return ltrim(substr($pdfAbs, strlen($localRoot)), DIRECTORY_SEPARATOR . '/');
     }
 
     private function validateInput(Request $request, ?int $ignoreId = null): array
@@ -137,18 +161,8 @@ class SertifikatController extends Controller
             'seria'                 => 'nullable|string|max:8',
             'raqam'                 => 'required|string|max:64|unique:sertifikatlar,raqam' . ($ignoreId ? ',' . $ignoreId : ''),
 
-            'familiya_uz'           => 'required|string|max:255',
-            'familiya_en'           => 'nullable|string|max:255',
-            'familiya_ru'           => 'nullable|string|max:255',
-            'ism_uz'                => 'required|string|max:255',
-            'ism_en'                => 'nullable|string|max:255',
-            'ism_ru'                => 'nullable|string|max:255',
-            'otasi_ismi_uz'         => 'nullable|string|max:255',
-            'otasi_ismi_en'         => 'nullable|string|max:255',
-            'otasi_ismi_ru'         => 'nullable|string|max:255',
+            'fio_uz'                => 'required|string|max:500',
 
-            'region_id'             => 'nullable|exists:regions,id',
-            'district_id'           => 'nullable|exists:districts,id',
             'profession_id'         => 'nullable|exists:professions,id',
             'kasb_uz'               => 'required|string|max:255',
             'kasb_en'               => 'nullable|string|max:255',
@@ -166,26 +180,34 @@ class SertifikatController extends Controller
 
     private function buildPlaceholderMap(Sertifikat $s): array
     {
-        $region = $s->region;
+        $region   = $s->region;
         $district = $s->district;
+        $fio      = $s->fio_uz ?? '';
+        $parts    = preg_split('/\s+/u', trim($fio));
+        $fioUp    = mb_strtoupper($fio);
+        $partsUp  = preg_split('/\s+/u', trim($fioUp));
 
         return [
             'seria'                 => $s->seria,
             'raqam'                 => $s->raqam,
 
-            'familiya_uz'           => $s->familiya_uz,
-            'familiya_en'           => $s->familiya_en,
-            'familiya_ru'           => $s->familiya_ru,
-            'ism_uz'                => $s->ism_uz,
-            'ism_en'                => $s->ism_en,
-            'ism_ru'                => $s->ism_ru,
-            'otasi_ismi_uz'         => $s->otasi_ismi_uz,
-            'otasi_ismi_en'         => $s->otasi_ismi_en,
-            'otasi_ismi_ru'         => $s->otasi_ismi_ru,
+            // Full FIO
+            'fio_uz'                => $fio,
+            'fio_en'                => $fioUp,
+            'fio_ru'                => $fioUp,
 
-            'fio_uz'                => trim("{$s->familiya_uz} {$s->ism_uz} {$s->otasi_ismi_uz}"),
-            'fio_en'                => trim("{$s->familiya_en} {$s->ism_en} {$s->otasi_ismi_en}"),
-            'fio_ru'                => trim("{$s->familiya_ru} {$s->ism_ru} {$s->otasi_ismi_ru}"),
+            // Split FIO (lotin)
+            'familiya_uz'           => $parts[0] ?? '',
+            'ism_uz'                => $parts[1] ?? '',
+            'otasi_ismi_uz'         => implode(' ', array_slice($parts, 2)),
+
+            // Split FIO (katta harf — EN/RU)
+            'familiya_en'           => $partsUp[0] ?? '',
+            'ism_en'                => $partsUp[1] ?? '',
+            'otasi_ismi_en'         => implode(' ', array_slice($partsUp, 2)),
+            'familiya_ru'           => $partsUp[0] ?? '',
+            'ism_ru'                => $partsUp[1] ?? '',
+            'otasi_ismi_ru'         => implode(' ', array_slice($partsUp, 2)),
 
             'viloyat_uz'            => $region?->name_uz,
             'viloyat_ru'            => $region?->name_ru,
@@ -203,8 +225,59 @@ class SertifikatController extends Controller
             'soat'                  => (string) $s->soat,
 
             'direktor_fio'          => $s->direktor_fio,
+            'director_fio'          => $s->direktor_fio,
+            'code'                  => '',
             'registratsiya_raqami'  => $s->registratsiya_raqami,
             'registratsiya_sanasi'  => $s->registratsiya_sanasi?->format('d.m.Y'),
         ];
+    }
+
+    public function samples(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        $paginator = Sertifikat::query()
+            ->when($q !== '', function ($w) use ($q) {
+                $w->where(function ($s) use ($q) {
+                    $s->where('raqam', 'like', "%{$q}%")
+                      ->orWhere('fio_uz', 'like', "%{$q}%")
+                      ->orWhere('kasb_uz', 'like', "%{$q}%")
+                      ->orWhere('kasb_ru', 'like', "%{$q}%");
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return response()->json([
+            'data' => $paginator->getCollection()->map(fn (Sertifikat $s) => [
+                'id'           => $s->id,
+                'raqam'        => $s->raqam,
+                'fio'          => $s->fio_uz,
+                'mutaxassislik'=> $s->kasb_uz,
+                'sana'         => optional($s->tugash_sanasi)->format('d.m.Y'),
+            ]),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'total'        => $paginator->total(),
+            ],
+        ]);
+    }
+
+    public function sampleData(Sertifikat $sertifikat)
+    {
+        return response()->json([
+            'template_id'           => $sertifikat->template_id,
+            'fio_uz'                => $sertifikat->fio_uz,
+            'profession_id'         => $sertifikat->profession_id,
+            'kasb_uz'               => $sertifikat->kasb_uz,
+            'kasb_en'               => $sertifikat->kasb_en,
+            'kasb_ru'               => $sertifikat->kasb_ru,
+            'boshlanish_sanasi'     => optional($sertifikat->boshlanish_sanasi)->format('Y-m-d'),
+            'tugash_sanasi'         => optional($sertifikat->tugash_sanasi)->format('Y-m-d'),
+            'soat'                  => $sertifikat->soat,
+            'direktor_fio'          => $sertifikat->direktor_fio,
+            'registratsiya_raqami'  => $sertifikat->registratsiya_raqami,
+            'registratsiya_sanasi'  => optional($sertifikat->registratsiya_sanasi)->format('Y-m-d'),
+        ]);
     }
 }

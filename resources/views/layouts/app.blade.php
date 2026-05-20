@@ -11,6 +11,89 @@
 
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
+    <style>
+        /* ── Tom Select: Premium Dark-mode Override ── */
+        .ts-wrapper .ts-control {
+            background: transparent !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 0.75rem !important;
+            box-shadow: none !important;
+            font-size: 0.875rem !important;
+            color: inherit !important;
+            min-height: 2.5rem !important;
+        }
+        .dark .ts-wrapper .ts-control {
+            border-color: #3f4e6a !important;
+            color: #e2e8f0 !important;
+        }
+        .ts-wrapper.focus .ts-control {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important;
+        }
+        .ts-control > input { color: inherit !important; }
+
+        /* Dropdown panel */
+        .ts-dropdown {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -6px rgba(0,0,0,0.1) !important;
+            margin-top: 4px !important;
+            z-index: 9999 !important;
+            overflow: hidden !important;
+        }
+        .dark .ts-dropdown {
+            background: #1e2a3b !important;
+            border-color: #3f4e6a !important;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4) !important;
+        }
+
+        /* Options */
+        .ts-dropdown .option {
+            padding: 0.55rem 0.875rem !important;
+            font-size: 0.875rem !important;
+            color: #334155 !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            line-height: 1.5 !important;
+            cursor: pointer !important;
+            border-bottom: 1px solid transparent !important;
+            transition: background 0.15s, color 0.15s !important;
+        }
+        .dark .ts-dropdown .option { color: #cbd5e1 !important; }
+
+        .ts-dropdown .option:hover,
+        .ts-dropdown .option.active {
+            background: #ede9fe !important;
+            color: #4f46e5 !important;
+        }
+        .dark .ts-dropdown .option:hover,
+        .dark .ts-dropdown .option.active {
+            background: rgba(99,102,241,0.18) !important;
+            color: #a5b4fc !important;
+        }
+
+        /* Scroll area */
+        .ts-dropdown-content {
+            max-height: 220px !important;
+            scrollbar-width: thin;
+            scrollbar-color: #6366f1 transparent;
+        }
+        .ts-dropdown-content::-webkit-scrollbar { width: 5px; }
+        .ts-dropdown-content::-webkit-scrollbar-track { background: transparent; }
+        .ts-dropdown-content::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 99px; }
+
+        /* Placeholder */
+        .ts-wrapper .placeholder,
+        .ts-control input::placeholder { color: #94a3b8 !important; }
+
+        /* Caret arrow */
+        .ts-wrapper.single .ts-control::after {
+            border-color: #94a3b8 transparent transparent !important;
+        }
+    </style>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">

@@ -34,7 +34,7 @@
                             {{ $s->seria }}{{ $s->raqam }}
                         </a>
                     </td>
-                    <td class="px-4 py-3">{{ $s->familiya_uz }} {{ $s->ism_uz }} {{ $s->otasi_ismi_uz }}</td>
+                    <td class="px-4 py-3">{{ $s->fio_uz }}</td>
                     <td class="px-4 py-3 text-sm">{{ $s->kasb_uz }}</td>
                     <td class="px-4 py-3 text-xs+">
                         {{ $s->boshlanish_sanasi?->format('d.m.Y') }} — {{ $s->tugash_sanasi?->format('d.m.Y') }}<br>
@@ -47,8 +47,10 @@
                     <td class="px-4 py-3">
                         <div class="flex items-center space-x-1">
                             @if($s->certificate_path)
-                            <a href="{{ route('sertifikatlar.download', $s) }}" class="btn size-8 p-0 hover:bg-slate-300/20" title=".docx yuklab olish">
-                                <i class="fa-solid fa-download text-success"></i>
+                            @php $ext = strtolower(pathinfo($s->certificate_path, PATHINFO_EXTENSION)); @endphp
+                            <a href="{{ route('sertifikatlar.download', $s) }}" class="btn size-8 p-0 hover:bg-slate-300/20"
+                               title="{{ $ext === 'pdf' ? 'PDF yuklab olish' : '.docx yuklab olish' }}">
+                                <i class="fa-solid {{ $ext === 'pdf' ? 'fa-file-pdf text-error' : 'fa-file-word text-primary' }}"></i>
                             </a>
                             @endif
                             <a href="{{ route('sertifikatlar.edit', $s) }}" class="btn size-8 p-0 hover:bg-slate-300/20" title="Tahrirlash">

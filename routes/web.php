@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CertificateVerifyController;
+use App\Http\Controllers\SertifikatVerifyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\GuvohnomaController;
@@ -17,10 +18,17 @@ Route::get('/', function () {
 });
 
 // --- Ochiq sahifalar (login talab etilmaydi) ---
+// Guvohnoma verify
 Route::get('/verify/{code}', [CertificateVerifyController::class, 'show'])
     ->name('certificate.verify');
 Route::get('/verify/{code}/download', [CertificateVerifyController::class, 'downloadPdf'])
     ->name('certificate.download');
+
+// Sertifikat verify
+Route::get('/sertifikat/{code}', [SertifikatVerifyController::class, 'show'])
+    ->name('sertifikat.verify');
+Route::get('/sertifikat/{code}/download', [SertifikatVerifyController::class, 'downloadPdf'])
+    ->name('sertifikat.download');
 
 
 Route::middleware('auth')->group(function () {
@@ -55,6 +63,10 @@ Route::middleware('auth')->group(function () {
 
     // Sertifikatlar / Guvohnomalar
     Route::middleware('permission:documents.generate')->group(function () {
+        Route::get('sertifikatlar/samples', [SertifikatController::class, 'samples'])
+            ->name('sertifikatlar.samples');
+        Route::get('sertifikatlar/{sertifikat}/sample-data', [SertifikatController::class, 'sampleData'])
+            ->name('sertifikatlar.sample-data');
         Route::get('sertifikatlar/{sertifikat}/download', [SertifikatController::class, 'download'])
             ->name('sertifikatlar.download');
         Route::resource('sertifikatlar', SertifikatController::class)

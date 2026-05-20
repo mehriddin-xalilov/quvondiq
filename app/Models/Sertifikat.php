@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Sertifikat extends Model
 {
@@ -20,6 +21,24 @@ class Sertifikat extends Model
         'registratsiya_sanasi' => 'date',
         'soat'                 => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $model) {
+            if (empty($model->verify_code)) {
+                do {
+                    $code = strtoupper(Str::random(10));
+                } while (static::where('verify_code', $code)->exists());
+
+                $model->verify_code = $code;
+            }
+        });
+    }
+
+    public function verifyUrl(): string
+    {
+        return route('sertifikat.verify', $this->verify_code);
+    }
 
     public function region(): BelongsTo
     {

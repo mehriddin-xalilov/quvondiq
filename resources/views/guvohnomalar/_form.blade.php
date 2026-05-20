@@ -6,13 +6,13 @@
         <div class="sticky top-24">
             <ol class="steps is-vertical line-space [--size:2.75rem] [--line:.5rem]">
                 @foreach([
-                    ['fa-id-card', '1-bo\'lim', 'Шаблон & рақам'],
-                    ['fa-user', '2-bo\'lim', 'Ходим Ф.И.О.'],
-                    ['fa-location-dot', '3-bo\'lim', 'Жойлашуви'],
-                    ['fa-briefcase', '4-bo\'lim', 'Мутахассислик'],
-                    ['fa-calendar', '5-bo\'lim', 'Сана & протокол'],
-                    ['fa-users', '6-bo\'lim', 'Масъул шахслар'],
-                    ['fa-star', '7-bo\'lim', 'Баҳолар'],
+                    ['fa-id-card', '1-bo\'lim', 'Shablon & raqam'],
+                    ['fa-user', '2-bo\'lim', 'Xodim F.I.O.'],
+                    ['fa-location-dot', '3-bo\'lim', 'Joylashuvi'],
+                    ['fa-briefcase', '4-bo\'lim', 'Mutaxassislik'],
+                    ['fa-calendar', '5-bo\'lim', 'Sana & protokol'],
+                    ['fa-users', '6-bo\'lim', 'Mas\'ul shaxslar'],
+                    ['fa-star', '7-bo\'lim', 'Baholar'],
                 ] as $i => [$icon, $step, $title])
                 <li class="step space-x-4 {{ $loop->last ? '' : 'pb-8' }} before:bg-primary dark:before:bg-accent">
                     <div class="step-header mask is-hexagon bg-primary text-white dark:bg-accent">
@@ -84,7 +84,7 @@
                     <div class="px-4 py-3 border-b border-slate-200 dark:border-navy-500">
                         <label class="relative flex">
                             <input x-model.debounce.300ms="query" @input="load(1)"
-                                   placeholder="Рақам, ФИО, мутахассислик..."
+                                   placeholder="Raqam, F.I.O., mutaxassislik..."
                                    class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-9 pr-3 text-sm placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             <div class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
@@ -111,11 +111,11 @@
                         <table x-show="!loading && items.length > 0" class="is-hoverable w-full text-left text-sm">
                             <thead>
                                 <tr>
-                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Рақам</th>
-                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Ф.И.О.</th>
-                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Мутахассислик</th>
-                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Разряд</th>
-                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Сана</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Raqam</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">F.I.O.</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Mutaxassislik</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Razryad</th>
+                                    <th class="bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-600 dark:bg-navy-800 dark:text-navy-300 text-xs">Sana</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -164,14 +164,14 @@
                     <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 p-1 text-primary">
                         <i class="fa-solid fa-id-card"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Шаблон ва рақам</h4>
+                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Shablon va raqam</h4>
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
                 <label class="block">
-                    <span>Шаблон <span class="text-error">*</span></span>
+                    <span>Shablon <span class="text-error">*</span></span>
                     <select name="template_id" required class="mt-1.5 w-full"
-                            x-init="$el._x_tom = new Tom($el, { placeholder: '— Шаблонни танланг —' })">
+                            x-init="$el._x_tom = new Tom($el, { placeholder: '— Shablonni tanlang —' })">
                         <option value=""></option>
                         @foreach($templates as $tpl)
                             <option value="{{ $tpl->id }}" @selected(old('template_id') == $tpl->id)>{{ $tpl->name }}</option>
@@ -181,7 +181,7 @@
                 </label>
 
                 <label class="block">
-                    <span>Гувоҳнома рақами <span class="text-error">*</span></span>
+                    <span>Guvohnoma raqami <span class="text-error">*</span></span>
                     <input name="raqam" required value="{{ old('raqam', $g?->raqam) }}" placeholder="01489"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                     @error('raqam')<span class="text-error text-xs">{{ $message }}</span>@enderror
@@ -196,14 +196,14 @@
                     <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 p-1 text-primary">
                         <i class="fa-solid fa-user"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Ходим Ф.И.О.</h4>
+                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Xodim F.I.O.</h4>
                 </div>
             </div>
             <div class="p-4 sm:p-5">
                 <div class="flex flex-col gap-5 sm:flex-row">
                     {{-- 3x4 rasm yuklash --}}
                     <div class="flex flex-col items-center justify-center border-r border-slate-200 dark:border-navy-500 pr-5 pb-5 sm:pb-0" style="width: 160px; flex-shrink: 0;">
-                        <span class="text-slate-600 dark:text-navy-100 font-medium text-xs mb-3 text-center">Ходим расми (3х4)</span>
+                        <span class="text-slate-600 dark:text-navy-100 font-medium text-xs mb-3 text-center">Xodim rasmi (3x4)</span>
                         <div x-data="{
                             previewUrl: '{{ $g?->photo_path ? Storage::disk('public')->url($g->photo_path) : '' }}',
                             triggerFileSelect() { this.$refs.fileInput.click() },
@@ -211,7 +211,7 @@
                                 const file = e.target.files[0];
                                 if (!file) return;
                                 if (file.size > 2048 * 1024) {
-                                    alert('Расм ўлчами 2МБ dan ошмаслиги kerak!');
+                                    alert('Rasm o\'lchami 2MB dan oshmasligi kerak!');
                                     this.$refs.fileInput.value = '';
                                     return;
                                 }
@@ -232,7 +232,7 @@
                                 <template x-if="!previewUrl">
                                     <div class="flex flex-col items-center text-center p-2 text-slate-400 dark:text-navy-300">
                                         <i class="fa-solid fa-camera text-2xl mb-1.5 text-slate-400"></i>
-                                        <span class="text-[10px] font-semibold leading-tight">Расм юklaш<br>(3х4, max 2MB)</span>
+                                        <span class="text-[10px] font-semibold leading-tight">Rasm yuklash<br>(3x4, max 2MB)</span>
                                     </div>
                                 </template>
                                 
@@ -249,27 +249,27 @@
 
                     {{-- FIO Inputs --}}
                     <div class="flex-1 space-y-4">
-                        <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">Кирилл алифбосида киритинг</p>
+                        <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">Kirill alifbosida kiriting</p>
                         <div class="space-y-4">
                             <label class="block">
-                                <span>Фамилия <span class="text-error">*</span></span>
+                                <span>Familiya <span class="text-error">*</span></span>
                                 <input name="familiya_ru" required
                                        value="{{ old('familiya_ru', $g?->familiya_ru ?? $g?->familiya_oz) }}"
-                                       placeholder="Иванов"
+                                       placeholder="Ivanov"
                                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             </label>
                             <label class="block">
-                                <span>Исм <span class="text-error">*</span></span>
+                                <span>Ism <span class="text-error">*</span></span>
                                 <input name="ism_ru" required
                                        value="{{ old('ism_ru', $g?->ism_ru ?? $g?->ism_oz) }}"
-                                       placeholder="Иван"
+                                       placeholder="Ivan"
                                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             </label>
                             <label class="block">
-                                <span>Отасининг исми</span>
+                                <span>Otasining ismi</span>
                                 <input name="otasi_ismi_ru"
                                        value="{{ old('otasi_ismi_ru', $g?->otasi_ismi_ru ?? $g?->otasi_ismi_oz) }}"
-                                       placeholder="Петрович"
+                                       placeholder="Petrovich"
                                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             </label>
                         </div>
@@ -285,13 +285,13 @@
                     <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 p-1 text-primary">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Жойлашуви</h4>
+                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Joylashuvi</h4>
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
                 <label class="block">
-                    <span>Берилган жой (Кирилл)</span>
-                    <input name="berilgan_joy_oz" value="{{ old('berilgan_joy_oz', $g?->berilgan_joy_oz) }}" placeholder="Қарши"
+                    <span>Berilgan joy (Kirill)</span>
+                    <input name="berilgan_joy_oz" value="{{ old('berilgan_joy_oz', $g?->berilgan_joy_oz) }}" placeholder="Qarshi"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
                 <label class="block">
@@ -309,14 +309,14 @@
                     <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 p-1 text-primary">
                         <i class="fa-solid fa-briefcase"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Мутахассислик</h4>
+                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Mutaxassislik</h4>
                 </div>
             </div>
             <div class="space-y-4 p-4 sm:p-5">
                 <label class="block">
-                    <span>Маълумотномадан (ихтиёрий)</span>
+                    <span>Ma'lumotnomadan (ixtiyoriy)</span>
                     <select name="profession_id" class="mt-1.5 w-full"
-                            x-init="$el._x_tom = new Tom($el, { placeholder: '— Танланг —' })">
+                            x-init="$el._x_tom = new Tom($el, { placeholder: '— Tanlang —' })">
                         <option value=""></option>
                         @foreach($professions as $p)
                             <option value="{{ $p->id }}" @selected(old('profession_id', $g?->profession_id) == $p->id)>{{ $p->name_uz }}</option>
@@ -326,20 +326,20 @@
 
                 <div class="grid grid-cols-1 gap-4">
                     <label class="block">
-                        <span>Мутахассислик (Кирилл) <span class="text-error">*</span></span>
+                        <span>Mutaxassislik (Kirill) <span class="text-error">*</span></span>
                         <textarea name="mutaxassislik_oz" required rows="2"
-                                  placeholder="Пўлат ва темир-бетон конструкцияларни монтаж қилиш бўйича монтажчи"
+                                  placeholder="Po'lat va temir-beton konstruksiyalarni montaj qilish bo'yicha montajchi"
                                   class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_oz', $g?->mutaxassislik_oz) }}</textarea>
                     </label>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <label class="block sm:col-span-2">
-                            <span>Специальность (Русский)</span>
+                            <span>Mutaxassislik (Ruscha)</span>
                             <textarea name="mutaxassislik_ru" rows="2"
-                                      placeholder="Монтажник по монтажу..."
+                                      placeholder="Montajnik po montaju..."
                                       class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_ru', $g?->mutaxassislik_ru) }}</textarea>
                         </label>
                         <label class="block">
-                            <span>Разряд</span>
+                            <span>Razryad</span>
                             <input name="razryad" value="{{ old('razryad', $g?->razryad) }}" placeholder="5"
                                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                         </label>
@@ -355,13 +355,13 @@
                     <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 p-1 text-primary">
                         <i class="fa-solid fa-calendar"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Сана ва протокол</h4>
+                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Sana va protokol</h4>
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
                 @foreach([
-                    ['boshlanish_sanasi', 'Бошланиш санаси'],
-                    ['tugash_sanasi', 'Тугаш санаси'],
+                    ['boshlanish_sanasi', 'Boshlanish sanasi'],
+                    ['tugash_sanasi', 'Tugash sanasi'],
                 ] as [$name, $label])
                 <label class="block">
                     <span>{{ $label }} <span class="text-error">*</span></span>
@@ -369,7 +369,7 @@
                         <input name="{{ $name }}" type="text" required
                                value="{{ old($name, $g?->$name?->format('Y-m-d')) }}"
                                x-init="$el._x_flatpickr = flatpickr($el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true })"
-                               placeholder="Танланг"
+                               placeholder="Tanlang"
                                class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                         <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
                             <i class="fa-regular fa-calendar"></i>
@@ -379,8 +379,8 @@
                 @endforeach
 
                 <label class="block sm:col-span-2">
-                    <span>Протокол рақами</span>
-                    <input name="protokol_raqami" value="{{ old('protokol_raqami', $g?->protokol_raqami) }}" placeholder="ПИ-98"
+                    <span>Protokol raqami</span>
+                    <input name="protokol_raqami" value="{{ old('protokol_raqami', $g?->protokol_raqami) }}" placeholder="PI-98"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
             </div>
@@ -393,26 +393,26 @@
                     <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 p-1 text-primary">
                         <i class="fa-solid fa-users"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Масъул шахслар</h4>
+                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Mas'ul shaxslar</h4>
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3 sm:p-5">
                 <label class="block">
-                    <span>Комиссия раиси <span class="text-error">*</span></span>
+                    <span>Komissiya raisi <span class="text-error">*</span></span>
                     <input name="komissiya_raisi_fio" required value="{{ old('komissiya_raisi_fio', $g?->komissiya_raisi_fio) }}"
-                           placeholder="Таймуродов К.М"
+                           placeholder="Taymurodov K.M"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
                 <label class="block">
-                    <span>Комиссия аъзоси</span>
+                    <span>Komissiya a'zosi</span>
                     <input name="komissiya_azosi_fio" value="{{ old('komissiya_azosi_fio', $g?->komissiya_azosi_fio) }}"
-                           placeholder="Жумаев М.Р"
+                           placeholder="Jumaev M.R"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
                 <label class="block">
-                    <span>Директор <span class="text-error">*</span></span>
+                    <span>Direktor <span class="text-error">*</span></span>
                     <input name="direktor_fio" required value="{{ old('direktor_fio', $g?->direktor_fio) }}"
-                           placeholder="Шодиев Хусен Бахронович"
+                           placeholder="Shodiev Xusen Baxronovich"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
             </div>
@@ -425,21 +425,21 @@
                     <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 p-1 text-primary">
                         <i class="fa-solid fa-star"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Баҳолар</h4>
+                    <h4 class="text-lg font-medium text-slate-700 dark:text-navy-100">Baholar</h4>
                 </div>
             </div>
             <div class="space-y-4 p-4 sm:p-5">
                 @foreach([
-                    ['umumiy', 'Умумий курс / Общий курс'],
-                    ['maxsus', 'Махсус курс / Специальный курс'],
-                    ['ishlab_chiqarish', 'Ишлаб чиқариш / Производственный'],
+                    ['umumiy', 'Umumiy kurs / Общий курс'],
+                    ['maxsus', 'Maxsus kurs / Специальный курс'],
+                    ['ishlab_chiqarish', 'Ishlab chiqarish / Производственный'],
                 ] as [$key, $label])
                 <div>
                     <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300 mb-2">{{ $label }}</p>
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <input name="ball_{{ $key }}_oz" value="{{ old('ball_'.$key.'_oz', $g?->{'ball_'.$key.'_oz'}) }}" placeholder="аъло"
+                        <input name="ball_{{ $key }}_oz" value="{{ old('ball_'.$key.'_oz', $g?->{'ball_'.$key.'_oz'}) }}" placeholder="a'lo"
                                class="form-input rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
-                        <input name="ball_{{ $key }}_ru" value="{{ old('ball_'.$key.'_ru', $g?->{'ball_'.$key.'_ru'}) }}" placeholder="отлично"
+                        <input name="ball_{{ $key }}_ru" value="{{ old('ball_'.$key.'_ru', $g?->{'ball_'.$key.'_ru'}) }}" placeholder="otlichno"
                                class="form-input rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
                     </div>
                 </div>
@@ -450,12 +450,12 @@
         <div class="flex justify-end space-x-2">
             <a href="{{ route('guvohnomalar.index') }}"
                class="btn min-w-[7rem] border border-slate-300 text-slate-700 hover:bg-slate-150 dark:border-navy-450 dark:text-navy-50 dark:hover:bg-navy-500">
-                Бекор қилиш
+                Bekor qilish
             </a>
             <button type="submit"
                     class="btn min-w-[8rem] bg-primary text-white hover:bg-primary-focus dark:bg-accent dark:hover:bg-accent-focus">
-                <i class="fa-solid fa-file-circle-check mr-2"></i>
-                {{ $g ? 'Сақлаш ва қайта генерация' : 'Сақлаш ва docx яратиш' }}
+                <i class="fa-solid fa-file-pdf mr-2"></i>
+                {{ $g ? 'Saqlash va qayta generatsiya' : 'Saqlash va pdf yaratish' }}
             </button>
         </div>
     </div>
