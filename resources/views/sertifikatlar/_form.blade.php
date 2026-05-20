@@ -307,13 +307,33 @@
                 <input type="hidden" name="kasb_en" :value="kasb_en">
                 <input type="hidden" name="kasb_ru" :value="kasb_ru">
 
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                     x-data="{
+                         startDate: '{{ old('boshlanish_sanasi', $s?->boshlanish_sanasi?->format('Y-m-d')) }}',
+                         davomiylik: '',
+                         calcEnd() {
+                             if (!this.startDate || !this.davomiylik) return;
+                             const days = parseInt(this.davomiylik);
+                             if (isNaN(days) || days < 1) return;
+                             const d = new Date(this.startDate);
+                             d.setDate(d.getDate() + days - 1);
+                             const iso = d.getFullYear() + '-'
+                                 + String(d.getMonth()+1).padStart(2,'0') + '-'
+                                 + String(d.getDate()).padStart(2,'0');
+                             const endEl = document.querySelector('[name=tugash_sanasi]');
+                             if (endEl?._x_flatpickr) endEl._x_flatpickr.setDate(iso, true);
+                         }
+                     }">
+                    {{-- Boshlanish sanasi --}}
                     <label class="block">
                         <span>Boshlanish sanasi <span class="text-error">*</span></span>
                         <span class="relative mt-1.5 flex">
                             <input name="boshlanish_sanasi" type="text" required
                                    value="{{ old('boshlanish_sanasi', $s?->boshlanish_sanasi?->format('Y-m-d')) }}"
-                                   x-init="$el._x_flatpickr = flatpickr($el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true })"
+                                   x-init="$el._x_flatpickr = flatpickr($el, {
+                                       dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true,
+                                       onChange: (sel, str) => { startDate = str; calcEnd(); }
+                                   })"
                                    placeholder="Sanani tanlang"
                                    class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
@@ -321,6 +341,24 @@
                             </span>
                         </span>
                     </label>
+
+                    {{-- Davomiylik (kun) — DB da saqlanmaydi, faqat tugash sanasini hisoblaydi --}}
+                    <label class="block">
+                        <span>Davomiylik <span class="text-slate-400 text-xs">(kun)</span></span>
+                        <div class="relative mt-1.5 flex">
+                            <input type="number" min="1" max="3650"
+                                   x-model="davomiylik"
+                                   @input="calcEnd()"
+                                   placeholder="Masalan: 90"
+                                   class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                            <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
+                                <i class="fa-regular fa-clock"></i>
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Kiritilsa, tugash sanasi avtomatik to'ldiriladi</p>
+                    </label>
+
+                    {{-- Tugash sanasi --}}
                     <label class="block">
                         <span>Tugash sanasi <span class="text-error">*</span></span>
                         <span class="relative mt-1.5 flex">
@@ -334,6 +372,8 @@
                             </span>
                         </span>
                     </label>
+
+                    {{-- Soat --}}
                     <label class="block">
                         <span>Soat <span class="text-error">*</span></span>
                         <input name="soat" type="number" required min="1" value="{{ old('soat', $s?->soat) }}" placeholder="360"
