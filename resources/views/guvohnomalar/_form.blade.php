@@ -321,13 +321,16 @@
                                   placeholder="Po'lat va temir-beton konstruksiyalarni montaj qilish bo'yicha montajchi"
                                   class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_oz', $g?->mutaxassislik_oz) }}</textarea>
                     </label>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <label class="block">
-                            <span>Mutaxassislik (Ruscha)</span>
-                            <textarea name="mutaxassislik_ru" rows="2"
-                                      placeholder="Montajnik po montaju..."
-                                      class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_ru', $g?->mutaxassislik_ru) }}</textarea>
-                        </label>
+                    {{-- Mutaxassislik (Ruscha) — to'liq qator --}}
+                    <label class="block">
+                        <span>Mutaxassislik (Ruscha)</span>
+                        <textarea name="mutaxassislik_ru" rows="2"
+                                  placeholder="Montajnik po montaju..."
+                                  class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_ru', $g?->mutaxassislik_ru) }}</textarea>
+                    </label>
+
+                    {{-- Razryad va Speciality — yangi qator, 2 ustun --}}
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <label class="block">
                             <span>Razryad</span>
                             <input name="razryad" value="{{ old('razryad', $g?->razryad) }}" placeholder="5"

@@ -39,6 +39,16 @@ class Guvohnoma extends Model
 
     public function verifyUrl(): string
     {
+        // Eski yozuvlarda verify_code bo'lmasligi mumkin — avval generate qilamiz
+        if (empty($this->verify_code)) {
+            do {
+                $code = strtoupper(\Illuminate\Support\Str::random(12));
+            } while (static::where('verify_code', $code)->exists());
+
+            $this->verify_code = $code;
+            $this->saveQuietly();
+        }
+
         return route('certificate.verify', $this->verify_code);
     }
 

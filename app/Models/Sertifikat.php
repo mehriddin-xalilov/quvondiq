@@ -37,6 +37,15 @@ class Sertifikat extends Model
 
     public function verifyUrl(): string
     {
+        if (empty($this->verify_code)) {
+            do {
+                $code = strtoupper(\Illuminate\Support\Str::random(10));
+            } while (static::where('verify_code', $code)->exists());
+
+            $this->verify_code = $code;
+            $this->saveQuietly();
+        }
+
         return route('sertifikat.verify', $this->verify_code);
     }
 
