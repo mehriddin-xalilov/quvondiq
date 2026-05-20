@@ -37,7 +37,18 @@
             <p class="text-xs+ uppercase text-slate-400 mb-2">Мутахассислик</p>
             <p>{{ $guvohnoma->mutaxassislik_oz }}</p>
             @if($guvohnoma->mutaxassislik_ru)<p class="text-slate-500">{{ $guvohnoma->mutaxassislik_ru }}</p>@endif
-            @if($guvohnoma->razryad)<p class="mt-1"><strong>Разряд:</strong> {{ $guvohnoma->razryad }}</p>@endif
+            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                @if($guvohnoma->razryad)
+                    <span class="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                        <i class="fa-solid fa-star text-[10px]"></i> Razryad: {{ $guvohnoma->razryad }}
+                    </span>
+                @endif
+                @if($guvohnoma->speciality)
+                    <span class="inline-flex items-center gap-1 text-xs bg-success/10 text-success px-2 py-0.5 rounded-full font-medium">
+                        <i class="fa-solid fa-tag text-[10px]"></i> {{ $guvohnoma->speciality }}
+                    </span>
+                @endif
+            </div>
         </div>
 
         <div>

@@ -313,16 +313,6 @@
                 </div>
             </div>
             <div class="space-y-4 p-4 sm:p-5">
-                <label class="block">
-                    <span>Ma'lumotnomadan (ixtiyoriy)</span>
-                    <select name="profession_id" class="mt-1.5 w-full"
-                            x-init="$el._x_tom = new Tom($el, { placeholder: '— Tanlang —' })">
-                        <option value=""></option>
-                        @foreach($professions as $p)
-                            <option value="{{ $p->id }}" @selected(old('profession_id', $g?->profession_id) == $p->id)>{{ $p->name_uz }}</option>
-                        @endforeach
-                    </select>
-                </label>
 
                 <div class="grid grid-cols-1 gap-4">
                     <label class="block">
@@ -332,7 +322,7 @@
                                   class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_oz', $g?->mutaxassislik_oz) }}</textarea>
                     </label>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <label class="block sm:col-span-2">
+                        <label class="block">
                             <span>Mutaxassislik (Ruscha)</span>
                             <textarea name="mutaxassislik_ru" rows="2"
                                       placeholder="Montajnik po montaju..."
@@ -342,6 +332,14 @@
                             <span>Razryad</span>
                             <input name="razryad" value="{{ old('razryad', $g?->razryad) }}" placeholder="5"
                                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                        </label>
+                        <label class="block">
+                            <span>Speciality</span>
+                            <input name="speciality" value="{{ old('speciality', $g?->speciality) }}"
+                                   placeholder="Mas: KM, EG"
+                                   maxlength="32"
+                                   class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                            <p class="text-xs text-slate-400 mt-0.5">Soha qisqartmasi</p>
                         </label>
                     </div>
                 </div>

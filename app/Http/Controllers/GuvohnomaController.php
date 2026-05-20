@@ -286,6 +286,7 @@ class GuvohnomaController extends Controller
             'profession_id'           => 'nullable|exists:professions,id',
             'mutaxassislik_oz'        => 'required|string|max:500',
             'mutaxassislik_ru'        => 'nullable|string|max:500',
+            'speciality'              => 'nullable|string|max:32',
             'razryad'                 => 'nullable|string|max:8',
 
             'boshlanish_sanasi'       => 'required|date',
@@ -369,8 +370,9 @@ class GuvohnomaController extends Controller
             'patronymic'              => $g->otasi_ismi_ru ?: $g->otasi_ismi_oz,
             'surname_initials'        => $g->surnameInitialsRu(),
 
-            'speciality_uz'           => $g->mutaxassislik_oz,
-            'speciality_ru'           => $g->mutaxassislik_ru ?: $g->mutaxassislik_oz,
+            'speciality_uz'           => $g->speciality ?: $g->mutaxassislik_oz,
+            'speciality_ru'           => $g->speciality ?: ($g->mutaxassislik_ru ?: $g->mutaxassislik_oz),
+            'speciality'              => $g->speciality,
             'rank'                    => $g->razryad,
             'rank_ru'                 => $this->rankWordRu($g->razryad),
 
