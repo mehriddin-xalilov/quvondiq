@@ -188,9 +188,7 @@
             transform: scale(.97);
             box-shadow: 0 2px 6px rgba(26,86,219,.3);
         }
-        @media (max-width: 768px) {
-            .btn-download { display: none; }
-        }
+
 
         /* FOOTER */
         .footer {
