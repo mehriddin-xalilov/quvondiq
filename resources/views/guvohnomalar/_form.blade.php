@@ -361,14 +361,14 @@
             </div>
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4 sm:p-5"
                  x-data="{
-                     startDate: '{{ old('boshlanish_sanasi', $g?->boshlanish_sanasi?->format('Y-m-d')) }}',
                      davomiylik: '',
                      calcEnd() {
-                         if (!this.startDate || !this.davomiylik) return;
                          const days = parseInt(this.davomiylik);
                          if (isNaN(days) || days < 1) return;
-                         const d = new Date(this.startDate);
-                         d.setDate(d.getDate() + days - 1);
+                         const startEl = document.querySelector('[name=boshlanish_sanasi]');
+                         const sd = startEl?._x_flatpickr?.selectedDates?.[0];
+                         if (!sd) return;
+                         const d = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate() + days);
                          const iso = d.getFullYear() + '-'
                              + String(d.getMonth()+1).padStart(2,'0') + '-'
                              + String(d.getDate()).padStart(2,'0');
@@ -385,7 +385,7 @@
                                value="{{ old('boshlanish_sanasi', $g?->boshlanish_sanasi?->format('Y-m-d')) }}"
                                x-init="$el._x_flatpickr = flatpickr($el, {
                                    dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true,
-                                   onChange: (sel, str) => { startDate = str; calcEnd(); }
+                                   onChange: () => calcEnd()
                                })"
                                placeholder="Tanlang"
                                class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
@@ -503,8 +503,8 @@
             </a>
             <button type="submit"
                     class="btn min-w-[8rem] bg-primary text-white hover:bg-primary-focus dark:bg-accent dark:hover:bg-accent-focus">
-                <i class="fa-solid fa-file-pdf mr-2"></i>
-                {{ $g ? 'Saqlash va qayta generatsiya' : 'Saqlash va pdf yaratish' }}
+                <i class="fa-solid fa-file-word mr-2"></i>
+                {{ $g ? 'Saqlash va qayta generatsiya' : 'Saqlash va Word yaratish' }}
             </button>
         </div>
     </div>

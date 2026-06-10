@@ -49,8 +49,8 @@
                     <td class="px-4 py-3">
                         <div class="flex items-center space-x-1">
                             @if($g->guvohnoma_path)
-                            <a href="{{ route('guvohnomalar.download', $g) }}" class="btn size-8 p-0 hover:bg-slate-300/20" title="PDF yuklab olish">
-                                <i class="fa-solid fa-file-pdf text-success"></i>
+                            <a href="{{ route('guvohnomalar.download', $g) }}" class="btn size-8 p-0 hover:bg-slate-300/20" title="Word (docx) yuklab olish">
+                                <i class="fa-solid fa-file-word text-primary"></i>
                             </a>
                             @endif
                             <a href="{{ route('guvohnomalar.edit', $g) }}" class="btn size-8 p-0 hover:bg-slate-300/20" title="Tahrirlash">

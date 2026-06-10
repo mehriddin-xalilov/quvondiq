@@ -29,41 +29,16 @@ class CertificateVerifyController extends Controller
             return back()->with('error', 'Fayl topilmadi.');
         }
 
-        $this->ensurePdf($guvohnoma);
-
         $abs = Storage::disk('local')->path($guvohnoma->guvohnoma_path);
         if (!file_exists($abs)) {
             return back()->with('error', 'Fayl topilmadi.');
         }
 
-        $ext = pathinfo($abs, PATHINFO_EXTENSION) ?: 'pdf';
+        $ext = pathinfo($abs, PATHINFO_EXTENSION) ?: 'docx';
 
         return response()->download(
             $abs,
             sprintf('Guvohnoma_%s.%s', $guvohnoma->raqam, $ext)
         );
-    }
-
-    private function ensurePdf(Guvohnoma $guvohnoma): void
-    {
-        $path = $guvohnoma->guvohnoma_path;
-        if (!$path || !str_ends_with(strtolower($path), '.docx')) {
-            return;
-        }
-
-        $docxAbs = Storage::disk('local')->path($path);
-        if (!file_exists($docxAbs)) {
-            return;
-        }
-
-        $pdfAbs = $this->generator->convertDocxToPdf($docxAbs);
-        if ($pdfAbs === null) {
-            return;
-        }
-
-        @unlink($docxAbs);
-        $localRoot = Storage::disk('local')->path('');
-        $guvohnoma->guvohnoma_path = ltrim(substr($pdfAbs, strlen($localRoot)), DIRECTORY_SEPARATOR . '/');
-        $guvohnoma->save();
     }
 }

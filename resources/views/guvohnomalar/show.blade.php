@@ -9,7 +9,7 @@
     <div class="space-x-2">
         @if($guvohnoma->guvohnoma_path)
         <a href="{{ route('guvohnomalar.download', $guvohnoma) }}" class="btn bg-success text-white hover:bg-success-focus">
-            <i class="fa-solid fa-file-pdf mr-2"></i> PDF Yuklab olish
+            <i class="fa-solid fa-file-word mr-2"></i> Word Yuklab olish
         </a>
         @endif
         <a href="{{ route('guvohnomalar.edit', $guvohnoma) }}" class="btn bg-warning text-white">Tahrirlash</a>

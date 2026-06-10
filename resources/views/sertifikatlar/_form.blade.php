@@ -309,14 +309,14 @@
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
                      x-data="{
-                         startDate: '{{ old('boshlanish_sanasi', $s?->boshlanish_sanasi?->format('Y-m-d')) }}',
                          davomiylik: '',
                          calcEnd() {
-                             if (!this.startDate || !this.davomiylik) return;
                              const days = parseInt(this.davomiylik);
                              if (isNaN(days) || days < 1) return;
-                             const d = new Date(this.startDate);
-                             d.setDate(d.getDate() + days - 1);
+                             const startEl = document.querySelector('[name=boshlanish_sanasi]');
+                             const sd = startEl?._x_flatpickr?.selectedDates?.[0];
+                             if (!sd) return;
+                             const d = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate() + days);
                              const iso = d.getFullYear() + '-'
                                  + String(d.getMonth()+1).padStart(2,'0') + '-'
                                  + String(d.getDate()).padStart(2,'0');
@@ -332,7 +332,7 @@
                                    value="{{ old('boshlanish_sanasi', $s?->boshlanish_sanasi?->format('Y-m-d')) }}"
                                    x-init="$el._x_flatpickr = flatpickr($el, {
                                        dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true,
-                                       onChange: (sel, str) => { startDate = str; calcEnd(); }
+                                       onChange: () => calcEnd()
                                    })"
                                    placeholder="Sanani tanlang"
                                    class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">

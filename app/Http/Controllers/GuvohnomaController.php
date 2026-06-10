@@ -195,9 +195,7 @@ class GuvohnomaController extends Controller
     {
         abort_unless($guvohnoma->guvohnoma_path, 404);
 
-        $this->ensurePdf($guvohnoma);
-
-        $ext = pathinfo($guvohnoma->guvohnoma_path, PATHINFO_EXTENSION) ?: 'pdf';
+        $ext = pathinfo($guvohnoma->guvohnoma_path, PATHINFO_EXTENSION) ?: 'docx';
         return Storage::disk('local')->download(
             $guvohnoma->guvohnoma_path,
             sprintf('Guvohnoma_%s.%s', $guvohnoma->raqam, $ext)
@@ -205,37 +203,8 @@ class GuvohnomaController extends Controller
     }
 
     /**
-     * Agar bazada saqlangan fayl hali ham .docx bo'lsa va serverda LibreOffice
-     * mavjud bo'lsa — PDF'ga konvertatsiya qilib, docx'ni o'chiradi va yangi
-     * yo'lni Guvohnoma'ga yozadi. Aks holda hech narsani qilmaydi.
-     */
-    private function ensurePdf(Guvohnoma $guvohnoma): void
-    {
-        $path = $guvohnoma->guvohnoma_path;
-        if (!$path || !str_ends_with(strtolower($path), '.docx')) {
-            return;
-        }
-
-        $docxAbs = Storage::disk('local')->path($path);
-        if (!file_exists($docxAbs)) {
-            return;
-        }
-
-        $pdfAbs = $this->generator->convertDocxToPdf($docxAbs);
-        if ($pdfAbs === null) {
-            return;
-        }
-
-        @unlink($docxAbs);
-        $localRoot = Storage::disk('local')->path('');
-        $guvohnoma->guvohnoma_path = ltrim(substr($pdfAbs, strlen($localRoot)), DIRECTORY_SEPARATOR . '/');
-        $guvohnoma->save();
-    }
-
-    /**
-     * Docx generatsiya qilib, agar LibreOffice mavjud bo'lsa darhol PDF ga
-     * konvertatsiya qiladi va asl docx ni o'chiradi. Yakuniy fayl yo'lini
-     * (PDF yoki docx, fallback) qaytaradi.
+     * Docx generatsiya qiladi va Word (.docx) fayl yo'lini qaytaradi.
+     * Guvohnoma PDF ga aylantirilmaydi — Word holatida qoladi.
      */
     private function generateForGuvohnoma(DocumentTemplate $template, Guvohnoma $guvohnoma): string
     {
@@ -244,28 +213,13 @@ class GuvohnomaController extends Controller
             $photoAbsPath = Storage::disk('public')->path($guvohnoma->photo_path);
         }
 
-        $docxRel = $this->generator->generate(
+        return $this->generator->generate(
             $template,
             $this->buildPlaceholderMap($guvohnoma),
             'generated/guvohnomalar',
             $guvohnoma->verifyUrl(),
             $photoAbsPath
         );
-
-        if (app()->environment('testing')) {
-            return $docxRel;
-        }
-
-        $docxAbs = Storage::disk('local')->path($docxRel);
-        $pdfAbs  = $this->generator->convertDocxToPdf($docxAbs);
-
-        if ($pdfAbs === null) {
-            return $docxRel;
-        }
-
-        @unlink($docxAbs);
-        $localRoot = Storage::disk('local')->path('');
-        return ltrim(substr($pdfAbs, strlen($localRoot)), DIRECTORY_SEPARATOR . '/');
     }
 
     private function validateInput(Request $request, ?int $ignoreId = null): array
