@@ -17,13 +17,42 @@ class SertifikatController extends Controller
     {
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $sertifikatlar = Sertifikat::with(['region', 'district', 'profession', 'creator'])
+        $sertifikatlar = $this->applyFilters(
+                Sertifikat::with(['region', 'district', 'profession', 'creator']),
+                $request
+            )
             ->orderByDesc('id')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return view('sertifikatlar.index', compact('sertifikatlar'));
+    }
+
+    /**
+     * Sertifikat so'roviga qidiruv/sana filtrlarini qo'llaydi.
+     * index() (sahifa) va samples() (modal) tomonidan birga ishlatiladi.
+     */
+    private function applyFilters($query, Request $request)
+    {
+        $q        = trim((string) $request->query('q', ''));
+        $dateFrom = $request->query('date_from');
+        $dateTo   = $request->query('date_to');
+
+        return $query
+            ->when($q !== '', function ($w) use ($q) {
+                $w->where(function ($s) use ($q) {
+                    $s->where('raqam', 'like', "%{$q}%")
+                      ->orWhere('seria', 'like', "%{$q}%")
+                      ->orWhere('fio_uz', 'like', "%{$q}%")
+                      ->orWhere('kasb_uz', 'like', "%{$q}%")
+                      ->orWhere('kasb_en', 'like', "%{$q}%")
+                      ->orWhere('kasb_ru', 'like', "%{$q}%");
+                });
+            })
+            ->when($dateFrom, fn ($w) => $w->whereDate('tugash_sanasi', '>=', $dateFrom))
+            ->when($dateTo, fn ($w) => $w->whereDate('tugash_sanasi', '<=', $dateTo));
     }
 
     public function create()
@@ -234,18 +263,10 @@ class SertifikatController extends Controller
 
     public function samples(Request $request)
     {
-        $q = trim((string) $request->query('q', ''));
-        $paginator = Sertifikat::query()
-            ->when($q !== '', function ($w) use ($q) {
-                $w->where(function ($s) use ($q) {
-                    $s->where('raqam', 'like', "%{$q}%")
-                      ->orWhere('fio_uz', 'like', "%{$q}%")
-                      ->orWhere('kasb_uz', 'like', "%{$q}%")
-                      ->orWhere('kasb_ru', 'like', "%{$q}%");
-                });
-            })
+        $paginator = $this->applyFilters(Sertifikat::query(), $request)
             ->orderByDesc('id')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return response()->json([
             'data' => $paginator->getCollection()->map(fn (Sertifikat $s) => [

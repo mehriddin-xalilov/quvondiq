@@ -1,0 +1,266 @@
+/* ============================================================
+   Claude Theme — override layer for the Tailux admin template
+   Loaded AFTER css/app.css. Non-destructive: remove the <link>
+   to fully revert to the original indigo/navy theme.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
+
+:root {
+    /* ---- Light (warm ivory) ---- */
+    --c-page:        #f5f4ee;   /* app background (bone/ivory) */
+    --c-surface:     #fbfaf6;   /* sidebar / header / popovers */
+    --c-card:        #ffffff;   /* cards */
+    --c-ink:         #1f1e1c;   /* headings / strong text */
+    --c-ink-body:    #3d3b37;   /* body text */
+    --c-muted:       #6f6c66;   /* secondary text */
+    --c-muted-2:     #97938b;   /* tertiary / placeholder */
+    --c-line:        #e8e4db;   /* borders */
+    --c-line-2:      #ded9ce;   /* stronger borders */
+
+    /* ---- Brand (clay / terracotta) ---- */
+    --c-coral:       #c96442;   /* primary */
+    --c-coral-focus: #b0512f;   /* primary hover / focus */
+    --c-coral-text:  #b0512f;   /* coral text on light bg (contrast) */
+    --c-coral-10:    rgba(201,100,66,.10);
+    --c-coral-18:    rgba(201,100,66,.18);
+    --c-coral-25:    rgba(201,100,66,.25);
+
+    /* ---- Dark (warm charcoal) ---- */
+    --c-d-bg:        #1a1915;
+    --c-d-panel:     #262521;
+    --c-d-card:      #2b2a25;
+    --c-d-elev:      #34322c;
+    --c-d-line:      #3a382f;
+    --c-d-ink:       #ede9e0;
+    --c-d-ink-2:     #c7c2b6;
+    --c-d-muted:     #9a9488;
+    --c-d-coral:     #d2765a;   /* accent (dark primary) */
+    --c-d-coral-lt:  #e3a183;   /* accent-light */
+    --c-d-coral-10:  rgba(210,118,90,.14);
+    --c-d-coral-18:  rgba(210,118,90,.22);
+}
+
+/* ============================================================
+   1. Typography
+   ============================================================ */
+body {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
+    color: var(--c-ink-body) !important;
+    background-color: var(--c-page) !important;
+}
+
+/* Editorial serif for display headings — Claude signature */
+h1, h2,
+.page-title,
+.font-serif-display {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif !important;
+    letter-spacing: -0.01em;
+}
+h1 { font-weight: 600; }
+h2 { font-weight: 600; }
+
+/* ============================================================
+   2. Surfaces & backgrounds (light)
+   ============================================================ */
+#root,
+.app-preloader,
+.bg-slate-50   { background-color: var(--c-page) !important; }
+.bg-slate-100,
+.bg-slate-150  { background-color: #efede5 !important; }
+
+/* Sidebar / header / popovers / dropdowns */
+.bg-white      { background-color: var(--c-surface) !important; }
+
+/* Cards keep a clean white face on the ivory page */
+.card {
+    background-color: var(--c-card) !important;
+    border-color: var(--c-line) !important;
+    border-radius: 0.85rem !important;
+    box-shadow: 0 1px 2px rgba(40,38,34,.04), 0 4px 16px -6px rgba(40,38,34,.08) !important;
+    color: var(--c-ink-body) !important;
+}
+
+/* ============================================================
+   3. Text colors (light)
+   ============================================================ */
+.text-slate-900 { color: var(--c-ink) !important; }
+.text-slate-800 { color: var(--c-ink) !important; }
+.text-slate-700 { color: #2c2a26 !important; }
+.text-slate-600 { color: var(--c-muted) !important; }
+.text-slate-500 { color: var(--c-muted) !important; }
+.text-slate-400 { color: var(--c-muted-2) !important; }
+
+/* ============================================================
+   4. Borders (light)
+   ============================================================ */
+.border-slate-100,
+.border-slate-150 { border-color: var(--c-line) !important; }
+.border-slate-200 { border-color: var(--c-line) !important; }
+.border-slate-300 { border-color: var(--c-line-2) !important; }
+
+/* ============================================================
+   5. Brand color — indigo → clay/coral (light)
+   ============================================================ */
+.bg-primary                       { background-color: var(--c-coral) !important; }
+.bg-primary-focus                 { background-color: var(--c-coral-focus) !important; }
+.bg-primary\/10                   { background-color: var(--c-coral-10) !important; }
+.bg-primary\/20                   { background-color: var(--c-coral-18) !important; }
+.text-primary                     { color: var(--c-coral-text) !important; }
+.text-primary-focus               { color: var(--c-coral-focus) !important; }
+.text-primary\/70                 { color: rgba(176,81,47,.75) !important; }
+.border-primary                   { border-color: var(--c-coral) !important; }
+.fill-primary                     { fill: var(--c-coral) !important; }
+.ring-primary                     { --tw-ring-color: var(--c-coral) !important; }
+.ring-primary\/50                 { --tw-ring-color: rgba(201,100,66,.5) !important; }
+
+.hover\:bg-primary:hover          { background-color: var(--c-coral) !important; }
+.hover\:bg-primary-focus:hover    { background-color: var(--c-coral-focus) !important; }
+.hover\:bg-primary\/10:hover      { background-color: var(--c-coral-10) !important; }
+.hover\:bg-primary\/20:hover      { background-color: var(--c-coral-18) !important; }
+.hover\:text-primary:hover        { color: var(--c-coral-text) !important; }
+.hover\:text-primary-focus:hover  { color: var(--c-coral-focus) !important; }
+.hover\:text-primary\/70:hover    { color: rgba(176,81,47,.75) !important; }
+.hover\:border-primary:hover      { border-color: var(--c-coral) !important; }
+
+.focus\:bg-primary:focus          { background-color: var(--c-coral) !important; }
+.focus\:bg-primary-focus:focus    { background-color: var(--c-coral-focus) !important; }
+.focus\:bg-primary\/10:focus      { background-color: var(--c-coral-10) !important; }
+.focus\:bg-primary\/20:focus      { background-color: var(--c-coral-18) !important; }
+.focus\:text-primary:focus        { color: var(--c-coral-text) !important; }
+.focus\:text-primary\/70:focus    { color: rgba(176,81,47,.75) !important; }
+.focus\:border-primary:focus      { border-color: var(--c-coral) !important; }
+
+.active\:bg-primary:active        { background-color: var(--c-coral) !important; }
+.active\:bg-primary-focus:active  { background-color: var(--c-coral-focus) !important; }
+.active\:bg-primary-focus\/90:active { background-color: rgba(176,81,47,.9) !important; }
+
+/* Checkboxes / radios / form controls */
+.checked\:bg-primary:checked      { background-color: var(--c-coral) !important; }
+.checked\:border-primary:checked  { border-color: var(--c-coral) !important; }
+
+/* Swiper / misc brand accents */
+:root {
+    --swiper-pagination-color: var(--c-coral);
+    --swiper-theme-color: var(--c-coral);
+}
+
+/* Focus ring on inputs (Tailwind forms plugin default is blue) */
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus,
+.form-checkbox:focus,
+.form-radio:focus {
+    --tw-ring-color: var(--c-coral) !important;
+    border-color: var(--c-coral) !important;
+}
+
+/* Text selection */
+::selection { background: var(--c-coral-18); color: var(--c-ink); }
+
+/* ============================================================
+   6. Buttons — refine to Claude feel
+   ============================================================ */
+.btn { letter-spacing: 0 !important; font-weight: 500; }
+
+/* ============================================================
+   6b. Ochib-yopiladigan (expandable) sidebar
+   ============================================================ */
+/* Yorliq matni — odatda yashirin (faqat ikonka) */
+.main-sidebar .nav-label {
+    display: none;
+    white-space: nowrap;
+    font-size: .875rem;
+    font-weight: 500;
+    line-height: 1;
+}
+.main-sidebar { transition: width .2s cubic-bezier(.4,0,.2,1); }
+
+/* Kengaytirilgan holat: sidebar kengligini oshiramiz — CSS o'zgaruvchisi
+   orqali kontent margini va header kengligi avtomatik moslashadi */
+#root.nav-expanded { --main-sidebar-width: 15rem; }
+
+#root.nav-expanded .main-sidebar .nav-label { display: inline-block; }
+
+/* Ikkilamchi panel (settings) sidebar-panel'ning chap otступи ham moslashadi */
+#root.nav-expanded .main-sidebar .nav-list {
+    width: 100%;
+    padding-left: .55rem;
+    padding-right: .55rem;
+}
+#root.nav-expanded .main-sidebar .nav-link {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    gap: .75rem;
+    padding-left: .7rem;
+    padding-right: .7rem;
+}
+/* Logo qatori kengaytirilganda chapga tekislanadi */
+#root.nav-expanded .main-sidebar > div > .flex.pt-4 { align-self: stretch; padding-left: 1rem; }
+
+/* ---- Header ::before background (spans full width behind header) ---- */
+.before\:bg-white::before        { background-color: var(--c-surface) !important; }
+
+/* ============================================================
+   7. DARK MODE — navy → warm charcoal
+   ============================================================ */
+/* Header pseudo-element + border in dark */
+:is(.dark .dark\:before\:bg-navy-750)::before { background-color: var(--c-d-panel) !important; }
+:is(.dark .dark\:before\:bg-navy-900)::before { background-color: var(--c-d-bg) !important; }
+:is(.dark .dark\:before\:bg-accent)::before   { background-color: var(--c-d-coral) !important; }
+.dark .header                    { border-color: var(--c-d-line) !important; }
+.header                          { border-color: var(--c-line) !important; }
+
+/* Frosted-glass header background (high-specificity !important in base css) */
+.is-header-blur nav.header .header-container            { background-color: rgba(251,250,246,.82) !important; }
+:is(.dark .is-header-blur nav.header .header-container) { background-color: rgba(38,37,33,.82) !important; }
+:is(.dark) body                                 { background-color: var(--c-d-bg) !important; color: var(--c-d-ink-2) !important; }
+
+/* Surfaces */
+:is(.dark .dark\:bg-navy-900)                   { background-color: var(--c-d-bg) !important; }
+:is(.dark .dark\:bg-navy-800)                   { background-color: var(--c-d-panel) !important; }
+:is(.dark .dark\:bg-navy-750)                   { background-color: var(--c-d-panel) !important; }
+:is(.dark .dark\:bg-navy-700)                   { background-color: var(--c-d-card) !important; }
+:is(.dark .dark\:bg-navy-600)                   { background-color: var(--c-d-elev) !important; }
+:is(.dark .dark\:bg-navy-500)                   { background-color: var(--c-d-elev) !important; }
+.dark .card                                     { background-color: var(--c-d-card) !important; border-color: var(--c-d-line) !important; color: var(--c-d-ink-2) !important; }
+.dark .app-preloader                            { background-color: var(--c-d-bg) !important; }
+.dark #root                                     { background-color: var(--c-d-bg) !important; }
+
+/* Hover/focus surfaces */
+:is(.dark .dark\:hover\:bg-navy-600:hover)      { background-color: var(--c-d-elev) !important; }
+:is(.dark .dark\:hover\:bg-navy-300\/20:hover)  { background-color: rgba(154,148,136,.14) !important; }
+:is(.dark .dark\:focus\:bg-navy-600:focus)      { background-color: var(--c-d-elev) !important; }
+
+/* Borders */
+:is(.dark .dark\:border-navy-600)               { border-color: var(--c-d-line) !important; }
+:is(.dark .dark\:border-navy-700)               { border-color: var(--c-d-line) !important; }
+:is(.dark .dark\:border-navy-450)               { border-color: #4a483e !important; }
+:is(.dark .dark\:border-navy-500)               { border-color: var(--c-d-line) !important; }
+
+/* Text */
+:is(.dark .dark\:text-navy-50)                  { color: var(--c-d-ink) !important; }
+:is(.dark .dark\:text-navy-100)                 { color: var(--c-d-ink) !important; }
+:is(.dark .dark\:text-navy-200)                 { color: var(--c-d-ink-2) !important; }
+:is(.dark .dark\:text-navy-300)                 { color: var(--c-d-muted) !important; }
+
+/* Brand accent (dark) → coral */
+:is(.dark .dark\:bg-accent)                     { background-color: var(--c-d-coral) !important; }
+:is(.dark .dark\:bg-accent-focus)               { background-color: #c05f42 !important; }
+:is(.dark .dark\:bg-accent-light\/15)           { background-color: var(--c-d-coral-10) !important; }
+:is(.dark .dark\:bg-accent-light\/20)           { background-color: var(--c-d-coral-18) !important; }
+:is(.dark .dark\:text-accent)                   { color: var(--c-d-coral) !important; }
+:is(.dark .dark\:text-accent-light)             { color: var(--c-d-coral-lt) !important; }
+:is(.dark .dark\:text-accent-light\/70)         { color: rgba(227,161,131,.7) !important; }
+:is(.dark .dark\:border-accent)                 { border-color: var(--c-d-coral) !important; }
+:is(.dark .dark\:ring-accent)                   { --tw-ring-color: var(--c-d-coral) !important; }
+:is(.dark .dark\:hover\:bg-accent-focus:hover)  { background-color: #c05f42 !important; }
+:is(.dark .dark\:hover\:text-accent:hover)      { color: var(--c-d-coral) !important; }
+:is(.dark .dark\:hover\:text-accent-light:hover){ color: var(--c-d-coral-lt) !important; }
+:is(.dark .dark\:focus\:bg-accent:focus)        { background-color: var(--c-d-coral) !important; }
+:is(.dark .dark\:focus\:bg-accent-focus:focus)  { background-color: #c05f42 !important; }
+:is(.dark .dark\:focus\:border-accent:focus)    { border-color: var(--c-d-coral) !important; }
+:is(.dark .dark\:checked\:bg-accent:checked)    { background-color: var(--c-d-coral) !important; }
+:is(.dark .dark\:checked\:border-accent:checked){ border-color: var(--c-d-coral) !important; }
+:is(.dark .dark\:active\:bg-accent\/90:active)  { background-color: rgba(210,118,90,.9) !important; }
+:is(.dark .dark\:active\:bg-accent-focus\/90:active) { background-color: rgba(192,95,66,.9) !important; }

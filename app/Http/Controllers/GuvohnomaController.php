@@ -15,13 +15,47 @@ class GuvohnomaController extends Controller
     {
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $guvohnomalar = Guvohnoma::with(['region', 'district', 'profession', 'creator'])
+        $guvohnomalar = $this->applyFilters(
+                Guvohnoma::with(['region', 'district', 'profession', 'creator']),
+                $request
+            )
             ->orderByDesc('id')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return view('guvohnomalar.index', compact('guvohnomalar'));
+    }
+
+    /**
+     * Guvohnoma so'roviga qidiruv/razryad/sana filtrlarini qo'llaydi.
+     * index() (sahifa) va samples() (modal) tomonidan birga ishlatiladi.
+     */
+    private function applyFilters($query, Request $request)
+    {
+        $q        = trim((string) $request->query('q', ''));
+        $razryad  = trim((string) $request->query('razryad', ''));
+        $dateFrom = $request->query('date_from');
+        $dateTo   = $request->query('date_to');
+
+        return $query
+            ->when($q !== '', function ($w) use ($q) {
+                $w->where(function ($s) use ($q) {
+                    $s->where('raqam', 'like', "%{$q}%")
+                      ->orWhere('familiya_ru', 'like', "%{$q}%")
+                      ->orWhere('familiya_oz', 'like', "%{$q}%")
+                      ->orWhere('ism_ru', 'like', "%{$q}%")
+                      ->orWhere('ism_oz', 'like', "%{$q}%")
+                      ->orWhere('otasi_ismi_ru', 'like', "%{$q}%")
+                      ->orWhere('otasi_ismi_oz', 'like', "%{$q}%")
+                      ->orWhere('mutaxassislik_oz', 'like', "%{$q}%")
+                      ->orWhere('mutaxassislik_ru', 'like', "%{$q}%");
+                });
+            })
+            ->when($razryad !== '', fn ($w) => $w->where('razryad', 'like', "%{$razryad}%"))
+            ->when($dateFrom, fn ($w) => $w->whereDate('tugash_sanasi', '>=', $dateFrom))
+            ->when($dateTo, fn ($w) => $w->whereDate('tugash_sanasi', '<=', $dateTo));
     }
 
     public function create()
@@ -128,21 +162,10 @@ class GuvohnomaController extends Controller
      */
     public function samples(Request $request)
     {
-        $q = trim((string) $request->query('q', ''));
-        $paginator = Guvohnoma::query()
-            ->when($q !== '', function ($w) use ($q) {
-                $w->where(function ($s) use ($q) {
-                    $s->where('raqam', 'like', "%{$q}%")
-                      ->orWhere('familiya_ru', 'like', "%{$q}%")
-                      ->orWhere('familiya_oz', 'like', "%{$q}%")
-                      ->orWhere('ism_ru', 'like', "%{$q}%")
-                      ->orWhere('ism_oz', 'like', "%{$q}%")
-                      ->orWhere('mutaxassislik_oz', 'like', "%{$q}%")
-                      ->orWhere('mutaxassislik_ru', 'like', "%{$q}%");
-                });
-            })
+        $paginator = $this->applyFilters(Guvohnoma::query(), $request)
             ->orderByDesc('id')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return response()->json([
             'data' => $paginator->getCollection()->map(fn (Guvohnoma $g) => [
@@ -227,6 +250,10 @@ class GuvohnomaController extends Controller
         $data = $request->validate([
             'template_id'             => 'required|exists:document_templates,id',
             'raqam'                   => 'required|string|max:64|unique:guvohnomalar,raqam' . ($ignoreId ? ',' . $ignoreId : ''),
+
+            'familiya_oz'             => 'required|string|max:255',
+            'ism_oz'                  => 'required|string|max:255',
+            'otasi_ismi_oz'           => 'nullable|string|max:255',
 
             'familiya_ru'             => 'required|string|max:255',
             'ism_ru'                  => 'required|string|max:255',

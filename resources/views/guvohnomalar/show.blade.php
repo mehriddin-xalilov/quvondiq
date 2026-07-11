@@ -24,7 +24,10 @@
     <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
         <div>
             <p class="text-xs+ uppercase text-slate-400 mb-2">Ф.И.О.</p>
-            <p>{{ trim(($guvohnoma->familiya_ru ?: $guvohnoma->familiya_oz) . ' ' . ($guvohnoma->ism_ru ?: $guvohnoma->ism_oz) . ' ' . ($guvohnoma->otasi_ismi_ru ?: $guvohnoma->otasi_ismi_oz)) }}</p>
+            <p>{{ $guvohnoma->fullNameOz() ?: '—' }} <span class="text-xs text-slate-400">(oʻzb.)</span></p>
+            @if($guvohnoma->fullNameRu())
+            <p class="mt-0.5 text-slate-500 dark:text-navy-300">{{ $guvohnoma->fullNameRu() }} <span class="text-xs text-slate-400">(рус.)</span></p>
+            @endif
         </div>
 
         <div>

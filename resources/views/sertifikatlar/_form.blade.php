@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <div class="col-span-12 lg:col-span-8 space-y-5" x-data="sertifikatSamplePicker()">
+    <div class="col-span-12 lg:col-span-8 space-y-5" x-data="sertifikatSamplePicker()" @keydown.window.escape="visible && close()">
         @unless($s)
         {{-- "Eski sertifikatdan namuna" tugmasi (faqat yaratishda) --}}
         <div class="flex justify-end">
@@ -117,11 +117,12 @@
                         </button>
                     </div>
 
-                    {{-- Search --}}
-                    <div class="px-4 py-3 border-b border-slate-200 dark:border-navy-500">
+                    {{-- Filtrlar --}}
+                    <div class="px-4 py-3 border-b border-slate-200 dark:border-navy-500 space-y-2.5">
+                        {{-- Qidiruv --}}
                         <label class="relative flex">
-                            <input x-model.debounce.300ms="query" @input="load(1)"
-                                   placeholder="Raqam, FIO, kasb..."
+                            <input x-model="query" @input.debounce.400ms="load(1)" @keydown.enter.prevent="load(1)"
+                                   placeholder="Qidirish: raqam, seriya, F.I.O., kasb"
                                    class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-9 pr-3 text-sm placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             <div class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
@@ -129,6 +130,30 @@
                                 </svg>
                             </div>
                         </label>
+
+                        {{-- Sana oralig'i --}}
+                        <div class="flex flex-wrap items-end gap-2">
+                            <div class="min-w-[8rem] flex-1">
+                                <span class="text-[11px] text-slate-400 dark:text-navy-300">Sanadan</span>
+                                <input type="date" x-model="dateFrom" @change="load(1)"
+                                       class="form-input mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-2.5 py-1.5 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:focus:border-accent">
+                            </div>
+                            <div class="min-w-[8rem] flex-1">
+                                <span class="text-[11px] text-slate-400 dark:text-navy-300">Sanagacha</span>
+                                <input type="date" x-model="dateTo" @change="load(1)"
+                                       class="form-input mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-2.5 py-1.5 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:focus:border-accent">
+                            </div>
+                            <button type="button" x-show="hasFilters()" @click="clearFilters()"
+                                    class="btn h-[34px] space-x-1.5 rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-600 hover:bg-slate-150 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-500">
+                                <i class="fa-solid fa-xmark text-[11px]"></i>
+                                <span>Tozalash</span>
+                            </button>
+                        </div>
+
+                        {{-- Natija soni --}}
+                        <p class="text-[11px] text-slate-400 dark:text-navy-300" x-show="!loading">
+                            <span x-text="meta.total"></span> ta natija topildi
+                        </p>
                     </div>
 
                     {{-- Body --}}
@@ -443,26 +468,37 @@
     // "Eski sertifikatdan namuna olish" — modal + form to'ldirish
     window.sertifikatSamplePicker = function () {
         return {
-            visible: false, loading: false, query: '',
+            visible: false, loading: false,
+            query: '', dateFrom: '', dateTo: '',
             items: [], meta: { current_page: 1, last_page: 1, total: 0 },
+            _reqId: 0, _ctrl: null,
 
             open() { this.visible = true; if (this.items.length === 0) this.load(1); },
             close() { this.visible = false; },
 
+            hasFilters() { return !!(this.query || this.dateFrom || this.dateTo); },
+            clearFilters() { this.query = ''; this.dateFrom = ''; this.dateTo = ''; this.load(1); },
+
             async load(page) {
+                const myId = ++this._reqId;
+                if (this._ctrl) this._ctrl.abort();
+                this._ctrl = new AbortController();
                 this.loading = true;
                 try {
                     const url = new URL("{{ route('sertifikatlar.samples') }}", window.location.origin);
                     url.searchParams.set('page', page || 1);
-                    if (this.query) url.searchParams.set('q', this.query);
-                    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    if (this.query)    url.searchParams.set('q', this.query);
+                    if (this.dateFrom) url.searchParams.set('date_from', this.dateFrom);
+                    if (this.dateTo)   url.searchParams.set('date_to', this.dateTo);
+                    const r = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: this._ctrl.signal });
                     const j = await r.json();
+                    if (myId !== this._reqId) return;      // eskirgan javob — e'tiborsiz qoldiramiz
                     this.items = j.data || [];
                     this.meta = j.meta || this.meta;
                 } catch (e) {
-                    console.error(e);
+                    if (e.name !== 'AbortError' && myId === this._reqId) console.error(e);
                 } finally {
-                    this.loading = false;
+                    if (myId === this._reqId) this.loading = false;
                 }
             },
 

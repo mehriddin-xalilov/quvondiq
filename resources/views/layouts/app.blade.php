@@ -10,6 +10,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/claude-theme.css') }}">
 
     <style>
         /* ── Tom Select: Premium Dark-mode Override ── */
@@ -28,8 +29,8 @@
             color: #e2e8f0 !important;
         }
         .ts-wrapper.focus .ts-control {
-            border-color: #6366f1 !important;
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important;
+            border-color: #c96442 !important;
+            box-shadow: 0 0 0 3px rgba(201,100,66,0.15) !important;
         }
         .ts-control > input { color: inherit !important; }
 
@@ -65,24 +66,24 @@
 
         .ts-dropdown .option:hover,
         .ts-dropdown .option.active {
-            background: #ede9fe !important;
-            color: #4f46e5 !important;
+            background: rgba(201,100,66,0.10) !important;
+            color: #b0512f !important;
         }
         .dark .ts-dropdown .option:hover,
         .dark .ts-dropdown .option.active {
-            background: rgba(99,102,241,0.18) !important;
-            color: #a5b4fc !important;
+            background: rgba(210,118,90,0.20) !important;
+            color: #e3a183 !important;
         }
 
         /* Scroll area */
         .ts-dropdown-content {
             max-height: 220px !important;
             scrollbar-width: thin;
-            scrollbar-color: #6366f1 transparent;
+            scrollbar-color: #c96442 transparent;
         }
         .ts-dropdown-content::-webkit-scrollbar { width: 5px; }
         .ts-dropdown-content::-webkit-scrollbar-track { background: transparent; }
-        .ts-dropdown-content::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 99px; }
+        .ts-dropdown-content::-webkit-scrollbar-thumb { background: #c96442; border-radius: 99px; }
 
         /* Placeholder */
         .ts-wrapper .placeholder,
@@ -103,12 +104,12 @@
     </script>
     @stack('styles')
 </head>
-<body x-data x-init="$store.global.activePanel = {{ json_encode(request()->routeIs('settings.*')) }} ? 'settings' : null" class="is-header-blur" x-bind="$store.global.documentBody">
+<body x-data="{ navExpanded: (localStorage.getItem('yd_nav') ?? 'open') !== 'closed' }" x-init="$store.global.activePanel = {{ json_encode(request()->routeIs('settings.*')) }} ? 'settings' : null; $watch('navExpanded', v => localStorage.setItem('yd_nav', v ? 'open' : 'closed'))" class="is-header-blur" x-bind="$store.global.documentBody">
     <div class="app-preloader fixed z-50 grid h-full w-full place-content-center bg-slate-50 dark:bg-navy-900">
         <div class="app-preloader-inner relative inline-block size-48"></div>
     </div>
 
-    <div id="root" class="min-h-100vh flex grow bg-slate-50 dark:bg-navy-900" x-cloak>
+    <div id="root" class="min-h-100vh flex grow bg-slate-50 dark:bg-navy-900" :class="{ 'nav-expanded': navExpanded }" x-cloak>
         <div class="sidebar print:hidden">
             <div class="main-sidebar">
                 <div class="flex h-full w-full flex-col items-center border-r border-slate-150 bg-white dark:border-navy-700 dark:bg-navy-800">
@@ -120,33 +121,38 @@
                         </a>
                     </div>
 
-                    <div class="is-scrollbar-hidden flex grow flex-col space-y-4 overflow-y-auto pt-6">
-                        <a href="{{ route('dashboard') }}" class="flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="'Dashboard'">
-                            <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <div class="nav-list is-scrollbar-hidden flex grow flex-col space-y-4 overflow-y-auto pt-6">
+                        <a href="{{ route('dashboard') }}" class="nav-link flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="!navExpanded ? 'Bosh sahifa' : ''">
+                            <svg class="h-7 w-7 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <path fill="currentColor" fill-opacity=".3" d="M5 14.059c0-1.01 0-1.514.222-1.945.221-.43.632-.724 1.453-1.31l4.163-2.974c.56-.4.842-.601 1.162-.601.32 0 .601.2 1.162.601l4.163 2.974c.821.586 1.232.88 1.453 1.31.222.43.222.935.222 1.945V19c0 .943 0 1.414-.293 1.707C18.414 21 17.943 21 17 21H7c-.943 0-1.414 0-1.707-.293C5 20.414 5 19.943 5 19v-4.94Z"></path>
                                 <path fill="currentColor" d="M3 12.387c0 .267 0 .4.084.441.084.041.19-.04.4-.204l7.288-5.669c.59-.459.885-.688 1.228-.688.343 0 .638.23 1.228.688l7.288 5.669c.21.163.316.245.4.204.084-.04.084-.174.084-.441v-.409c0-.48 0-.72-.102-.928-.101-.208-.291-.355-.67-.65l-7-5.445c-.59-.459-.885-.688-1.228-.688-.343 0-.638.23-1.228.688l-7 5.445c-.379.295-.569.442-.67.65-.102.208-.102.448-.102.928v.409Z"></path>
                             </svg>
+                            <span class="nav-label">Bosh sahifa</span>
                         </a>
 
                         @can('documents.generate')
-                        <a href="{{ route('sertifikatlar.index') }}" class="flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('sertifikatlar.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="'Sertifikatlar'">
-                            <i class="fa-solid fa-certificate text-xl"></i>
+                        <a href="{{ route('sertifikatlar.index') }}" class="nav-link flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('sertifikatlar.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="!navExpanded ? 'Sertifikatlar' : ''">
+                            <i class="fa-solid fa-certificate text-xl w-7 text-center shrink-0"></i>
+                            <span class="nav-label">Sertifikatlar</span>
                         </a>
 
-                        <a href="{{ route('guvohnomalar.index') }}" class="flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('guvohnomalar.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="'Guvohnomalar'">
-                            <i class="fa-solid fa-award text-xl"></i>
+                        <a href="{{ route('guvohnomalar.index') }}" class="nav-link flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('guvohnomalar.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="!navExpanded ? 'Guvohnomalar' : ''">
+                            <i class="fa-solid fa-award text-xl w-7 text-center shrink-0"></i>
+                            <span class="nav-label">Guvohnomalar</span>
                         </a>
                         @endcan
 
                         @can('templates.view')
-                        <a href="{{ route('templates.index') }}" class="flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('templates.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="'Shablonlar'">
-                            <i class="fa-solid fa-file-word text-xl"></i>
+                        <a href="{{ route('templates.index') }}" class="nav-link flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('templates.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="!navExpanded ? 'Shablonlar' : ''">
+                            <i class="fa-solid fa-file-word text-xl w-7 text-center shrink-0"></i>
+                            <span class="nav-label">Shablonlar</span>
                         </a>
                         @endcan
 
                         @can('lookups.manage')
-                        <a href="{{ route('professions.index') }}" class="flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('professions.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="'Mutaxassisliklar'">
-                            <i class="fa-solid fa-briefcase text-xl"></i>
+                        <a href="{{ route('professions.index') }}" class="nav-link flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('professions.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="!navExpanded ? 'Mutaxassisliklar' : ''">
+                            <i class="fa-solid fa-briefcase text-xl w-7 text-center shrink-0"></i>
+                            <span class="nav-label">Mutaxassisliklar</span>
                         </a>
                         @endcan
 
@@ -154,11 +160,12 @@
                         @php
                              $settingsDefaultRoute = auth()->user()->can('users.view') ? route('settings.users.index') : route('settings.roles.index');
                         @endphp
-                        <a href="{{ $settingsDefaultRoute }}" class="flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('settings.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="'Boshqaruv'">
-                            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <a href="{{ $settingsDefaultRoute }}" class="nav-link flex size-11 items-center justify-center rounded-lg {{ request()->routeIs('settings.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'hover:bg-primary/20 dark:hover:bg-navy-300/20' }} outline-none transition-colors duration-200" x-tooltip.placement.right="!navExpanded ? 'Boshqaruv' : ''">
+                            <svg class="h-7 w-7 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-opacity="0.3" fill="currentColor" d="M2 12.947v-1.771c0-1.047.85-1.913 1.899-1.913 1.81 0 2.549-1.288 1.64-2.868a1.919 1.919 0 0 1 .699-2.607l1.729-.996c.79-.474 1.81-.192 2.279.603l.11.192c.9 1.58 2.379 1.58 3.288 0l.11-.192c.47-.795 1.49-1.077 2.279-.603l1.73.996a1.92 1.92 0 0 1 .699 2.607c-.91 1.58-.17 2.868 1.639 2.868 1.04 0 1.899.856 1.899 1.912v1.772c0 1.047-.85 1.912-1.9 1.912-1.808 0-2.548 1.288-1.638 2.869.52.915.21 2.083-.7 2.606l-1.729.997c-.79.473-1.81.191-2.279-.604l-.11-.191c-.9-1.58-2.379-1.58-3.288 0l-.11.19c-.47.796-1.49 1.078-2.279.605l-1.73-.997a1.919 1.919 0 0 1-.699-2.606c.91-1.58.17-2.869-1.639-2.869A1.911 1.911 0 0 1 2 12.947Z"></path>
                                 <path fill="currentColor" d="M11.995 15.332c1.794 0 3.248-1.464 3.248-3.27 0-1.807-1.454-3.272-3.248-3.272-1.794 0-3.248 1.465-3.248 3.271 0 1.807 1.454 3.271 3.248 3.271Z"></path>
                             </svg>
+                            <span class="nav-label">Boshqaruv</span>
                         </a>
                         @endcanany
                     </div>
@@ -215,7 +222,13 @@
         <nav class="header before:bg-white dark:before:bg-navy-750 print:hidden">
             <div class="header-container relative flex w-full bg-white dark:bg-navy-750 print:hidden">
                 <div class="flex w-full items-center justify-between">
-                    <div class="h-7 w-7" x-show="$store.global.activePanel === 'settings'">
+                    <button @click="navExpanded = !navExpanded"
+                            class="btn size-9 rounded-full p-0 text-slate-500 hover:bg-slate-300/20 focus:bg-slate-300/20 dark:text-navy-200 dark:hover:bg-navy-300/20"
+                            x-tooltip="navExpanded ? 'Menyuni yopish' : 'Menyuni ochish'"
+                            aria-label="Menyuni ochish/yopish">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div class="h-7 w-7 ml-1" x-show="$store.global.activePanel === 'settings'">
                         <button class="menu-toggle ml-0.5 flex h-7 w-7 flex-col justify-center space-y-1.5 text-primary outline-none focus:outline-none dark:text-accent-light/80" :class="$store.global.isSidebarExpanded && 'active'" @click="$store.global.isSidebarExpanded = !$store.global.isSidebarExpanded">
                             <span></span><span></span><span></span>
                         </button>

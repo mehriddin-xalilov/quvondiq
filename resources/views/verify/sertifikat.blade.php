@@ -6,19 +6,21 @@
     <meta name="description" content="Sertifikat № {{ $sertifikat->raqam }} — Yem Do'koni CRM">
     <title>Sertifikat № {{ $sertifikat->raqam }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --primary: #1a56db;
-            --primary-light: #e8f0fe;
+            --primary: #c96442;
+            --primary-dark: #a84a2a;
+            --primary-light: #f6ece7;
+            --primary-border: #eddbd1;
             --success: #057a55;
             --success-light: #def7ec;
-            --text: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --bg: #f9fafb;
+            --text: #1f1e1c;
+            --text-muted: #6f6c66;
+            --border: #e8e4db;
+            --bg: #f5f4ee;
             --card: #ffffff;
             --radius: 16px;
         }
@@ -32,7 +34,7 @@
 
         /* HEADER */
         .header {
-            background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             padding: 20px 16px;
             text-align: center;
@@ -46,9 +48,11 @@
             margin-bottom: 6px;
         }
         .header h1 {
-            font-size: 18px;
-            font-weight: 700;
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 20px;
+            font-weight: 600;
             line-height: 1.3;
+            letter-spacing: -0.01em;
         }
 
         /* BADGE */
@@ -88,7 +92,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            border-bottom: 1px solid #d1ddfb;
+            border-bottom: 1px solid var(--primary-border);
         }
         .card-header-icon {
             width: 36px;
@@ -174,19 +178,19 @@
             justify-content: center;
             gap: 10px;
             width: 100%;
-            background: linear-gradient(135deg, #1a56db, #1e40af);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             font-size: 15px;
             font-weight: 600;
             padding: 16px 24px;
             border-radius: var(--radius);
             text-decoration: none;
-            box-shadow: 0 4px 14px rgba(26,86,219,.35);
+            box-shadow: 0 4px 14px rgba(201,100,66,.35);
             transition: transform .15s, box-shadow .15s;
         }
         .btn-download:active {
             transform: scale(.97);
-            box-shadow: 0 2px 6px rgba(26,86,219,.3);
+            box-shadow: 0 2px 6px rgba(201,100,66,.3);
         }
 
 

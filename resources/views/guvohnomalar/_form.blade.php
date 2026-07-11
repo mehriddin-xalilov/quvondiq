@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="col-span-12 lg:col-span-8 space-y-5" x-data="guvohnomaSamplePicker()">
+    <div class="col-span-12 lg:col-span-8 space-y-5" x-data="guvohnomaSamplePicker()" @keydown.window.escape="visible && close()">
         @unless($g)
         {{-- "Eski guvohnomadan namuna" tugmasi (faqat yaratishda) --}}
         <div class="flex justify-end">
@@ -80,11 +80,12 @@
                         </button>
                     </div>
 
-                    {{-- Search --}}
-                    <div class="px-4 py-3 border-b border-slate-200 dark:border-navy-500">
+                    {{-- Filtrlar --}}
+                    <div class="px-4 py-3 border-b border-slate-200 dark:border-navy-500 space-y-2.5">
+                        {{-- Qidiruv --}}
                         <label class="relative flex">
-                            <input x-model.debounce.300ms="query" @input="load(1)"
-                                   placeholder="Raqam, F.I.O., mutaxassislik..."
+                            <input x-model="query" @input.debounce.400ms="load(1)" @keydown.enter.prevent="load(1)"
+                                   placeholder="Qidirish: raqam, F.I.O., mutaxassislik"
                                    class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-9 pr-3 text-sm placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             <div class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5 transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
@@ -92,6 +93,35 @@
                                 </svg>
                             </div>
                         </label>
+
+                        {{-- Struktura filtrlar: razryad + sana oralig'i --}}
+                        <div class="flex flex-wrap items-end gap-2">
+                            <div class="w-20">
+                                <span class="text-[11px] text-slate-400 dark:text-navy-300">Razryad</span>
+                                <input x-model="razryad" @input.debounce.400ms="load(1)"
+                                       class="form-input mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-2.5 py-1.5 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:focus:border-accent">
+                            </div>
+                            <div class="min-w-[8rem] flex-1">
+                                <span class="text-[11px] text-slate-400 dark:text-navy-300">Sanadan</span>
+                                <input type="date" x-model="dateFrom" @change="load(1)"
+                                       class="form-input mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-2.5 py-1.5 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:focus:border-accent">
+                            </div>
+                            <div class="min-w-[8rem] flex-1">
+                                <span class="text-[11px] text-slate-400 dark:text-navy-300">Sanagacha</span>
+                                <input type="date" x-model="dateTo" @change="load(1)"
+                                       class="form-input mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-2.5 py-1.5 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:focus:border-accent">
+                            </div>
+                            <button type="button" x-show="hasFilters()" @click="clearFilters()"
+                                    class="btn h-[34px] space-x-1.5 rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-600 hover:bg-slate-150 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-500">
+                                <i class="fa-solid fa-xmark text-[11px]"></i>
+                                <span>Tozalash</span>
+                            </button>
+                        </div>
+
+                        {{-- Natija soni --}}
+                        <p class="text-[11px] text-slate-400 dark:text-navy-300" x-show="!loading">
+                            <span x-text="meta.total"></span> ta natija topildi
+                        </p>
                     </div>
 
                     {{-- Body --}}
@@ -182,7 +212,7 @@
 
                 <label class="block">
                     <span>Guvohnoma raqami <span class="text-error">*</span></span>
-                    <input name="raqam" required value="{{ old('raqam', $g?->raqam) }}" placeholder="01489"
+                    <input name="raqam" required value="{{ old('raqam', $g?->raqam) }}"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                     @error('raqam')<span class="text-error text-xs">{{ $message }}</span>@enderror
                 </label>
@@ -247,30 +277,65 @@
                         </div>
                     </div>
 
-                    {{-- FIO Inputs --}}
+                    {{-- FIO Inputs — ikki tilda, qator bo'yicha tekislangan (O'zbekcha | Ruscha) --}}
                     <div class="flex-1 space-y-4">
-                        <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">Kirill alifbosida kiriting</p>
-                        <div class="space-y-4">
+                        {{-- Ustun sarlavhalari (faqat keng ekranda) --}}
+                        <div class="hidden gap-5 sm:grid sm:grid-cols-2">
+                            <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">O'zbekcha (kirill)</p>
+                            <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300">Ruscha (rus tilida)</p>
+                        </div>
+
+                        {{-- Familiya --}}
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                             <label class="block">
                                 <span>Familiya <span class="text-error">*</span></span>
-                                <input name="familiya_ru" required
-                                       value="{{ old('familiya_ru', $g?->familiya_ru ?? $g?->familiya_oz) }}"
-                                       placeholder="Ivanov"
+                                <input name="familiya_oz" required
+                                       value="{{ old('familiya_oz', $g?->familiya_oz) }}"
                                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                                @error('familiya_oz')<span class="text-error text-xs">{{ $message }}</span>@enderror
                             </label>
+                            <label class="block">
+                                <span>Фамилия <span class="text-error">*</span></span>
+                                <input name="familiya_ru" required
+                                       value="{{ old('familiya_ru', $g?->familiya_ru) }}"
+                                       class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                                @error('familiya_ru')<span class="text-error text-xs">{{ $message }}</span>@enderror
+                            </label>
+                        </div>
+
+                        {{-- Ism --}}
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                             <label class="block">
                                 <span>Ism <span class="text-error">*</span></span>
-                                <input name="ism_ru" required
-                                       value="{{ old('ism_ru', $g?->ism_ru ?? $g?->ism_oz) }}"
-                                       placeholder="Ivan"
+                                <input name="ism_oz" required
+                                       value="{{ old('ism_oz', $g?->ism_oz) }}"
                                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                                @error('ism_oz')<span class="text-error text-xs">{{ $message }}</span>@enderror
                             </label>
                             <label class="block">
-                                <span>Otasining ismi</span>
-                                <input name="otasi_ismi_ru"
-                                       value="{{ old('otasi_ismi_ru', $g?->otasi_ismi_ru ?? $g?->otasi_ismi_oz) }}"
-                                       placeholder="Petrovich"
+                                <span>Имя <span class="text-error">*</span></span>
+                                <input name="ism_ru" required
+                                       value="{{ old('ism_ru', $g?->ism_ru) }}"
                                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                                @error('ism_ru')<span class="text-error text-xs">{{ $message }}</span>@enderror
+                            </label>
+                        </div>
+
+                        {{-- Otasining ismi --}}
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+                            <label class="block">
+                                <span>Otasining ismi</span>
+                                <input name="otasi_ismi_oz"
+                                       value="{{ old('otasi_ismi_oz', $g?->otasi_ismi_oz) }}"
+                                       class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                                @error('otasi_ismi_oz')<span class="text-error text-xs">{{ $message }}</span>@enderror
+                            </label>
+                            <label class="block">
+                                <span>Отчество</span>
+                                <input name="otasi_ismi_ru"
+                                       value="{{ old('otasi_ismi_ru', $g?->otasi_ismi_ru) }}"
+                                       class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                                @error('otasi_ismi_ru')<span class="text-error text-xs">{{ $message }}</span>@enderror
                             </label>
                         </div>
                     </div>
@@ -291,12 +356,12 @@
             <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
                 <label class="block">
                     <span>Berilgan joy (Kirill)</span>
-                    <input name="berilgan_joy_oz" value="{{ old('berilgan_joy_oz', $g?->berilgan_joy_oz) }}" placeholder="Qarshi"
+                    <input name="berilgan_joy_oz" value="{{ old('berilgan_joy_oz', $g?->berilgan_joy_oz) }}"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
                 <label class="block">
                     <span>Выдано (Русский)</span>
-                    <input name="berilgan_joy_ru" value="{{ old('berilgan_joy_ru', $g?->berilgan_joy_ru) }}" placeholder="Карши"
+                    <input name="berilgan_joy_ru" value="{{ old('berilgan_joy_ru', $g?->berilgan_joy_ru) }}"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
             </div>
@@ -318,14 +383,12 @@
                     <label class="block">
                         <span>Mutaxassislik (Kirill) <span class="text-error">*</span></span>
                         <textarea name="mutaxassislik_oz" required rows="2"
-                                  placeholder="Po'lat va temir-beton konstruksiyalarni montaj qilish bo'yicha montajchi"
                                   class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_oz', $g?->mutaxassislik_oz) }}</textarea>
                     </label>
                     {{-- Mutaxassislik (Ruscha) — to'liq qator --}}
                     <label class="block">
                         <span>Mutaxassislik (Ruscha)</span>
                         <textarea name="mutaxassislik_ru" rows="2"
-                                  placeholder="Montajnik po montaju..."
                                   class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent p-2.5 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">{{ old('mutaxassislik_ru', $g?->mutaxassislik_ru) }}</textarea>
                     </label>
 
@@ -333,13 +396,13 @@
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <label class="block">
                             <span>Razryad</span>
-                            <input name="razryad" value="{{ old('razryad', $g?->razryad) }}" placeholder="5"
+                            <input name="razryad" value="{{ old('razryad', $g?->razryad) }}"
                                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
+                            <p class="text-xs text-slate-400 mt-0.5">Malaka darajasi (raqam bilan)</p>
                         </label>
                         <label class="block">
                             <span>Speciality</span>
                             <input name="speciality" value="{{ old('speciality', $g?->speciality) }}"
-                                   placeholder="Mas: KM, EG"
                                    maxlength="32"
                                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                             <p class="text-xs text-slate-400 mt-0.5">Soha qisqartmasi</p>
@@ -387,7 +450,6 @@
                                    dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true,
                                    onChange: () => calcEnd()
                                })"
-                               placeholder="Tanlang"
                                class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                         <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
                             <i class="fa-regular fa-calendar"></i>
@@ -402,7 +464,6 @@
                         <input type="number" min="1" max="3650"
                                x-model="davomiylik"
                                @input="calcEnd()"
-                               placeholder="Masalan: 90"
                                class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                         <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
                             <i class="fa-regular fa-clock"></i>
@@ -418,7 +479,6 @@
                         <input name="tugash_sanasi" type="text" required
                                value="{{ old('tugash_sanasi', $g?->tugash_sanasi?->format('Y-m-d')) }}"
                                x-init="$el._x_flatpickr = flatpickr($el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd.m.Y', allowInput: true })"
-                               placeholder="Tanlang"
                                class="form-input peer w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 pl-9 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                         <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
                             <i class="fa-regular fa-calendar"></i>
@@ -429,7 +489,7 @@
                 {{-- Protokol raqami --}}
                 <label class="block">
                     <span>Protokol raqami</span>
-                    <input name="protokol_raqami" value="{{ old('protokol_raqami', $g?->protokol_raqami) }}" placeholder="PI-98"
+                    <input name="protokol_raqami" value="{{ old('protokol_raqami', $g?->protokol_raqami) }}"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
             </div>
@@ -449,19 +509,16 @@
                 <label class="block">
                     <span>Komissiya raisi <span class="text-error">*</span></span>
                     <input name="komissiya_raisi_fio" required value="{{ old('komissiya_raisi_fio', $g?->komissiya_raisi_fio) }}"
-                           placeholder="Taymurodov K.M"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
                 <label class="block">
                     <span>Komissiya a'zosi</span>
                     <input name="komissiya_azosi_fio" value="{{ old('komissiya_azosi_fio', $g?->komissiya_azosi_fio) }}"
-                           placeholder="Jumaev M.R"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
                 <label class="block">
                     <span>Direktor <span class="text-error">*</span></span>
                     <input name="direktor_fio" required value="{{ old('direktor_fio', $g?->direktor_fio) }}"
-                           placeholder="Shodiev Xusen Baxronovich"
                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent">
                 </label>
             </div>
@@ -486,10 +543,16 @@
                 <div>
                     <p class="text-xs+ uppercase tracking-wide text-slate-400 dark:text-navy-300 mb-2">{{ $label }}</p>
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <input name="ball_{{ $key }}_oz" value="{{ old('ball_'.$key.'_oz', $g?->{'ball_'.$key.'_oz'}) }}" placeholder="a'lo"
-                               class="form-input rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
-                        <input name="ball_{{ $key }}_ru" value="{{ old('ball_'.$key.'_ru', $g?->{'ball_'.$key.'_ru'}) }}" placeholder="otlichno"
-                               class="form-input rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
+                        <label class="block">
+                            <span class="text-xs text-slate-500 dark:text-navy-300">Baho (o'zbekcha, kirill)</span>
+                            <input name="ball_{{ $key }}_oz" value="{{ old('ball_'.$key.'_oz', $g?->{'ball_'.$key.'_oz'}) }}"
+                                   class="form-input mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
+                        </label>
+                        <label class="block">
+                            <span class="text-xs text-slate-500 dark:text-navy-300">Baho (ruscha)</span>
+                            <input name="ball_{{ $key }}_ru" value="{{ old('ball_'.$key.'_ru', $g?->{'ball_'.$key.'_ru'}) }}"
+                                   class="form-input mt-1 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 hover:border-slate-400 focus:border-primary dark:border-navy-450">
+                        </label>
                     </div>
                 </div>
                 @endforeach
@@ -515,26 +578,38 @@
     // "Eski guvohnomadan namuna olish" — modal + form to'ldirish
     window.guvohnomaSamplePicker = function () {
         return {
-            visible: false, loading: false, query: '',
+            visible: false, loading: false,
+            query: '', razryad: '', dateFrom: '', dateTo: '',
             items: [], meta: { current_page: 1, last_page: 1, total: 0 },
+            _reqId: 0, _ctrl: null,
 
             open() { this.visible = true; if (this.items.length === 0) this.load(1); },
             close() { this.visible = false; },
 
+            hasFilters() { return !!(this.query || this.razryad || this.dateFrom || this.dateTo); },
+            clearFilters() { this.query = ''; this.razryad = ''; this.dateFrom = ''; this.dateTo = ''; this.load(1); },
+
             async load(page) {
+                const myId = ++this._reqId;
+                if (this._ctrl) this._ctrl.abort();
+                this._ctrl = new AbortController();
                 this.loading = true;
                 try {
                     const url = new URL("{{ route('guvohnomalar.samples') }}", window.location.origin);
                     url.searchParams.set('page', page || 1);
-                    if (this.query) url.searchParams.set('q', this.query);
-                    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    if (this.query)    url.searchParams.set('q', this.query);
+                    if (this.razryad)  url.searchParams.set('razryad', this.razryad);
+                    if (this.dateFrom) url.searchParams.set('date_from', this.dateFrom);
+                    if (this.dateTo)   url.searchParams.set('date_to', this.dateTo);
+                    const r = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: this._ctrl.signal });
                     const j = await r.json();
+                    if (myId !== this._reqId) return;      // eskirgan javob — e'tiborsiz qoldiramiz
                     this.items = j.data || [];
                     this.meta = j.meta || this.meta;
                 } catch (e) {
-                    console.error(e);
+                    if (e.name !== 'AbortError' && myId === this._reqId) console.error(e);
                 } finally {
-                    this.loading = false;
+                    if (myId === this._reqId) this.loading = false;
                 }
             },
 

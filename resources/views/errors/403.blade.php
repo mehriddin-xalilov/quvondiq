@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Ruxsat berilmagan - 403</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/claude-theme.css') }}">
+    <script src="{{ asset('js/app.js') }}" defer></script>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +19,7 @@
     </script>
 </head>
 <body class="bg-slate-50 dark:bg-navy-900">
-    <div id="root" class="min-h-100vh flex grow bg-slate-50 dark:bg-navy-900" x-cloak>
+    <div id="root" class="min-h-100vh flex grow bg-slate-50 dark:bg-navy-900">
         <main class="grid w-full grow grid-cols-1 place-items-center">
             <div class="max-w-md p-6 text-center">
                 <div class="w-full">
@@ -36,5 +38,6 @@
             </div>
         </main>
     </div>
+    <script>window.addEventListener("DOMContentLoaded", () => Alpine.start());</script>
 </body>
 </html>
