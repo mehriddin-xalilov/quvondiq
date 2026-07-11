@@ -350,6 +350,7 @@ class GuvohnomaController extends Controller
             'surname'                 => $g->familiya_ru ?: $g->familiya_oz,
             'patronymic'              => $g->otasi_ismi_ru ?: $g->otasi_ismi_oz,
             'surname_initials'        => $g->surnameInitialsRu(),
+            'surname_initials_oz'     => $g->surnameInitialsOz(),
 
             'speciality_uz'           => $g->speciality ?: $g->mutaxassislik_oz,
             'speciality_ru'           => $g->speciality ?: ($g->mutaxassislik_ru ?: $g->mutaxassislik_oz),
