@@ -69,6 +69,13 @@ class Guvohnoma extends Model
         return trim($this->familiya_ru . ($i ? " {$i}." : '') . ($o ? "{$o}." : ''));
     }
 
+    public function surnameInitialsOz(): string
+    {
+        $i = mb_substr($this->ism_oz ?? '', 0, 1);
+        $o = mb_substr($this->otasi_ismi_oz ?? '', 0, 1);
+        return trim($this->familiya_oz . ($i ? " {$i}." : '') . ($o ? "{$o}." : ''));
+    }
+
     public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
