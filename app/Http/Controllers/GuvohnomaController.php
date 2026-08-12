@@ -351,6 +351,16 @@ class GuvohnomaController extends Controller
             'patronymic'              => $g->otasi_ismi_ru ?: $g->otasi_ismi_oz,
             'surname_initials'        => $g->surnameInitialsRu(),
             'surname_initials_oz'     => $g->surnameInitialsOz(),
+            'surname_initials_ru'     => $g->surnameInitialsRu(),
+
+            // Guvohnomaning o'ng (ruscha) tomoni uchun alohida kalitlar —
+            // chap (o'zbekcha) tomon `_oz`, o'ng tomon `_ru` ni ishlatadi.
+            'name_oz'                 => $g->ism_oz ?: $g->ism_ru,
+            'surname_oz'              => $g->familiya_oz ?: $g->familiya_ru,
+            'patronymic_oz'           => $g->otasi_ismi_oz ?: $g->otasi_ismi_ru,
+            'name_ru'                 => $g->ism_ru ?: $g->ism_oz,
+            'surname_ru'              => $g->familiya_ru ?: $g->familiya_oz,
+            'patronymic_ru'           => $g->otasi_ismi_ru ?: $g->otasi_ismi_oz,
 
             'speciality_uz'           => $g->speciality ?: $g->mutaxassislik_oz,
             'speciality_ru'           => $g->speciality ?: ($g->mutaxassislik_ru ?: $g->mutaxassislik_oz),
