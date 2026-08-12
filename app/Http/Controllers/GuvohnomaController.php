@@ -290,11 +290,16 @@ class GuvohnomaController extends Controller
             'photo'                   => 'nullable|image|max:2048',
         ]);
 
-        // FIO bitta marta kiritiladi (Кирилл); _oz ustunlariga ham aynan shu qiymat
-        // yoziladi, chunki bazada _oz NOT NULL bo'lishi mumkin va legacy kod _oz ga tayanadi.
-        $data['familiya_oz']   = $data['familiya_ru'];
-        $data['ism_oz']        = $data['ism_ru'];
-        $data['otasi_ismi_oz'] = $data['otasi_ismi_ru'] ?? null;
+        // FIO ikki tilda alohida kiritiladi — guvohnomaning chap tomoni `_oz`,
+        // o'ng tomoni `_ru` qiymatini chiqaradi. Faqat bo'sh qolgan tomon
+        // ikkinchisidan to'ldiriladi (bazada `_oz` NOT NULL bo'lishi mumkin).
+        $data['familiya_oz'] = $data['familiya_oz'] ?: $data['familiya_ru'];
+        $data['ism_oz']      = $data['ism_oz'] ?: $data['ism_ru'];
+        $data['familiya_ru'] = $data['familiya_ru'] ?: $data['familiya_oz'];
+        $data['ism_ru']      = $data['ism_ru'] ?: $data['ism_oz'];
+
+        $data['otasi_ismi_oz'] = ($data['otasi_ismi_oz'] ?? null) ?: ($data['otasi_ismi_ru'] ?? null);
+        $data['otasi_ismi_ru'] = ($data['otasi_ismi_ru'] ?? null) ?: ($data['otasi_ismi_oz'] ?? null);
 
         return $data;
     }
